@@ -1,0 +1,139 @@
+<script language="javascript" runat="server">
+  Platform.Load("Core","1");
+  
+  //Set current language
+  Variable.SetValue("@langCode", normalizeLang(Attribute.GetValue('text17')));
+  //Write(Variable.GetValue('@langCode'));
+  //Set default salutation string
+  Variable.SetValue("@salutationString", getSalutation(Attribute.GetValue('text17')));
+  //Write(Variable.GetValue('@salutationString'));
+  
+  function getSalutation(lang) {
+    var salutation = Attribute.GetValue('Salutation_String');
+    if (salutation) return salutation;
+    var defSalut = {
+      de: "Guten Tag",
+      fr: "Chère cliente, cher client",
+      it: "Buongiorno",
+      en: "Dear customer"
+    };
+    var normalizedLang = normalizeLang(lang);
+    return defSalut[normalizedLang];
+  }
+  
+  function normalizeLang(lang) {
+    if (!lang) return 'en';
+    // Fallback auf Englisch, wenn kein Wert übergeben wird
+    var normalizedLang = lang.toLowerCase();
+    if (normalizedLang === 'de' || normalizedLang === 'german' || normalizedLang === 'deutsch') {
+      return 'de';
+    }
+    else if (normalizedLang === 'fr' || normalizedLang === 'french' || normalizedLang === 'français') {
+      return 'fr';
+    }
+    else if (normalizedLang === 'it' || normalizedLang === 'italian' || normalizedLang === 'italiano') {
+      return 'it';
+    }
+    else if (normalizedLang === 'en' || normalizedLang === 'english' || normalizedLang === 'englisch') {
+      return 'en';
+    }
+    else {
+      return 'en';
+      // Standardfallback auf Englisch
+    }
+  }
+  
+  function getValueByKeyName(templateKey, name) {
+    try {
+      var tempDE = DataExtension.Init("ent.911_TEMPLATE");
+      var rows = tempDE.Rows.Lookup(["key", "name"], [templateKey, name]);
+      if (rows.length > 0) {
+        return rows[0]["value"];
+      }
+      else if (templateKey !== "sunrise-light") {
+        // Fallback with default template "sunrise-light"
+        return getValueByKeyName("sunrise-light", name);
+      }
+      else {
+        return null;
+      }
+    }
+    catch (e) {
+      Write("An error occurred: " + Stringify(e) + "<br/>");
+      return null;
+    }
+  }
+  
+  //function to add https-protocol as default, if no protocol is given
+  function formatUrl(url) {
+    if (url == null || url == "") {
+      return "";
+    }
+    else if (url.indexOf("http://") === 0 || url.indexOf("https://") === 0) {
+      return url;
+    }
+    return "https://" + url;
+  }
+  
+  //function to log messages
+  function log(message, debug) {
+    try {
+      var emailName = Platform.Variable.GetValue("emailName_");
+      //var timestamp = Platform.Function.Stringify(Platform.Function.ToISODate(new Date()));
+      if (typeof(message) == "object") {
+        message = Stringify(message);
+      }
+      // Nachricht in die Data Extension einfügen
+      var logDE = DataExtension.Init("ent.921_TEMPLOG");
+      var addStatus = logDE.Rows.Add({
+        "emailName": emailName,
+        "message": message
+      }
+                                    );
+      if (debug) {
+        Write(message + " -> Log Status: " + addStatus + "<br>");
+      }
+    }
+    catch (e) {
+      Write("Fehler beim Speichern des Logs: " + Stringify(e) + "<br>");
+    }
+  }
+  function isNotNullOrEmpty(value) {
+    return value !== null &&                 // Nicht null
+      value !== undefined &&            // Nicht undefined
+      value !== "" &&                   // Nicht leerer String
+      (typeof value !== "string" || value.toLowerCase() !== "null");
+    // String nicht "null"
+  }
+  
+  /**
+   * Schreibt einen flexiblen Log-Eintrag in eine Data Extension.
+   * Wichtige Felder werden in separate Spalten geschrieben, das Gesamtobjekt
+   * zusätzlich als JSON-String in die Spalte 'additionalInfo'.
+   * @param {Object} logData - Ein Objekt mit allen zu loggenden Daten.
+   * @param {Boolean} debug - Wenn true, wird eine Debug-Nachricht ausgegeben.
+   */
+  function logOneClick(logData, debug) {
+
+    var logDE_Name = "ent.922_ONECLICKLOG";
+
+    try {
+      var logDE = DataExtension.Init(logDE_Name);
+
+      var addStatus = logDE.Rows.Add({
+        "cicId": logData.cicId,
+        "siteId": logData.siteId,
+        "action": logData.action,
+        "products": logData.products,
+        "additionalInfo": Stringify(logData)
+      });
+
+      if (debug) {
+        Write("Log-Daten: " + Stringify(logData) + " -> Status: " + addStatus + "<br>");
+      }
+
+    } catch (e) {
+      Write("Fehler beim Speichern des Logs: " + Stringify(e) + "<br>");
+    }
+  }
+</script>

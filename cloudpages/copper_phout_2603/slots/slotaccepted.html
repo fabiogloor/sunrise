@@ -1,0 +1,167 @@
+<main>
+    <style type="text/css" scoped="">
+        body {
+            background: var(--bs-gray-100);
+        }
+               /****** HeaderSection ******/
+       .img-responsive {
+            width: 100%;
+            height: 449px;
+            background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_mb_v2.png');
+            /* background-color: #F6D6B3; /* For browsers that do not support gradients */
+            -webkit-image-set: background-image;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            object-fit: cover;
+        }
+        .header-container {
+            position: relative;
+            display: flex;
+            width: 90%;
+            max-width: 1280px;
+            text-align: center;
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            border-radius: 14px;
+        }
+        .header-container-inner .text-container {
+            margin: 2rem 0;
+            justify-content: center;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .header-container-inner .text-container span {
+            font-size: 24px;
+            font-weight: 500;
+            line-height: 110%;
+        }
+        /****** HeaderSection ******/
+
+        .background-hover {
+            background-color: #ffffff;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1280px;
+            height: auto;
+            padding: 2rem;
+            margin: 0 auto;
+            color: var(--textColor);
+        }
+        .background-hover-cta {
+            background-color: #ffffff;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1280px;
+            height: auto;
+            padding: 14px 24px;
+            margin: 0 auto;
+            color: var(--textColor);
+        }
+        .background-hover-cta-inner{
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: stretch;
+            gap: 2rem;
+        }
+
+    /* S-Large devices (large desktops, 600px and up) */
+    @media (min-width: 600px) { 
+            .img-responsive{
+                display: flex;
+                /* height: 359px; */
+                background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_Large_v2.png');
+            } 
+            .header-container-inner {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: center
+            }
+            .header-container .text-container {
+                width: 60%;
+                text-align: left;
+                padding-left: 2rem;
+            }   
+            .section-inner-img img{
+                max-width: 60%;
+            }
+        }
+
+     /* Medium devices (tablets, 768px and up) */
+     @media (min-width: 768px) { 
+        .background-full-inner {
+            padding: 1.5rem;
+        }
+    }
+
+    /* Large devices (desktops, 992px and up) */
+    @media (min-width: 992px) { 
+        .img-responsive{
+            height: 490px;
+            background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_Desktop_v2.png');
+        }
+        .background-full-inner {
+            padding: 1.5rem;
+        }
+        .l-center-l{
+            max-width: var(--bs-breakpoint-lg);
+        }
+        .l-center-md{
+            max-width: var(--bs-breakpoint-md);
+        }
+    }
+    /* X-Large devices (large desktops, 1200px and up) */
+    @media (min-width: 1200px) { 
+        .header-container-inner .text-container span {
+            font-size: 48px;
+            line-height: 110%;
+        }
+    }
+    </style>
+
+    <!-- Header START -->
+    <div class="header-container" style="text-align: center;">
+        <div class="img-responsive header-cover">
+            <div class="header-container-inner">
+                <div class="text-container lineUp" style="color: var(--white);">
+                    <!-- <div class="xxs-section"></div> -->
+                    <span>Dank für Ihre Zusammenarbeit</span>
+                    <!-- <div class="xxs-section"></div>
+                    <p style="text-transform: none; font-weight: 500;">Weil du uns wichtig bist.</p> -->
+                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <div class="m-section"></div>
+
+   <!-- OfferConfirm-Massages -->
+   <div class="background-hover" style="text-align: center;">
+        <div class="l-centre-lg">
+            <img src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/3353c069-4e28-4006-9c22-42d635b1d091.png" width="100px" alt="icon" class="m-section">
+            <h2 class="s-section">Wir haben Ihre OTO-ID-Nummer erhalten</h2>
+        </div>
+
+        <div class="m-section"></div>
+
+        <div class="l-center-md" style="text-align: center; margin: 0 auto;">
+            <p>Vielen Dank. Wir werden Ihnen bald weitere Informationen zukommen lassen, um Ihnen einen nahtlosen Übergang zu Ihrem neuen Festnetzservice zu gewährleisten.</p>
+          <p>
+            <!-- Undo Link:  <a href="#" id="btnUndo" class="afontcolour dynamic-submit" data-action="undo" data-cicid="%%=v(@cicId)=%%">Link</a>  -->
+          </p>
+            <div class="s-section"></div>
+            <p>Beste Grüsse
+                <br />Sunrise  
+            </p>
+            </div>
+        <div class="m-section"></div>
+    </div>
+    <!-- OfferConfirm-Massages -->
+    <div class="m-section"></div>
+</main>

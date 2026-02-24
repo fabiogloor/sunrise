@@ -1,0 +1,83 @@
+<!-- Kommt in den Slot -->
+<main>
+    <style type="text/css" scoped="">
+        main { 
+          min-height: 84vh;
+        }
+        /* Spezifisches CSS */
+        /****** HeaderSection ******/
+       .icon-responsive {
+            min-height: 429px;
+            background-color: var(--sunrisePink); /* For browsers that do not support gradients */
+            background: var(--Ruby-Glow);
+            /*background-image: url('https://www.sunrise.ch/content/dam/various/images/toolate_header/TooLate.png');*/
+            padding: 0 1.125rem;
+            padding-top: 1.125rem;
+            justify-content: flex-end;
+        }
+        .header-pic {
+            width: 120%;
+            max-width: 490px;
+        }
+        .header-container-pic {
+            width: 100%;
+            max-width: 529px;
+        }
+       /* Large devices (desktops, 600px and up) */
+        @media (min-width: 600px) { 
+            .header-pic {
+                max-width: 90%;
+            }  
+         }
+       /* Desktop devices (desktops, 992px and up) */
+        @media (min-width: 992px) { 
+            .icon-responsive{
+                /* height: 369px; */
+                padding-top: 0;
+            }
+              .header-container .text-container {
+                padding-bottom: 3.125rem;
+            }
+         }
+        /****** HeaderSection ******/
+    </style>
+  
+    <div class="m-section"></div>
+
+    <!-- Header Start -->
+    <div class="header-container" style="text-align: center;">
+        <div class="icon-responsive header-cover">
+            <div class="header-container-inner">
+                <div class="text-container lineUp" style="color: #ffffff;">
+                    <!-- <p class="xs-section" style="text-transform: none;"><strong>Sie wechseln zu Up Mobile L: Alles inklusive</strong></p> -->
+                    <span>UPS, HIER STIMMT<br>ETWAS NICHT</span>
+                </div>
+
+                <div class="header-container-pic">
+                    <img src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/SUNRISE_PP_CUSTOMER.png" alt="keyvisual" class="header-pic">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
+  
+   <div class="m-section"></div>
+
+    <!-- Offer Start -->
+    <div class="background-hover" style="text-align: center;">
+        <div class="l-centre-md">
+            <!-- <img src="https://www.sunrise.ch/content/dam/various/icons/green-upc/check-circle.png" width="100px" alt="icon" class="l-section"> -->
+            <h2 class="m-section">Es tut uns leid, aber Sie haben die Frist für die Annahme dieses Angebots verpasst</h2>
+        </div>
+
+        <div class="l-center-l m-section" style="text-align: center;">
+            <p>Die Seite, die Sie suchen, ist nicht mehr verfügbar.</p>
+            <p>Bleiben Sie für weitere neue Sunrise Angebote auf dem Laufenden.</p>
+        </div>
+        <div class="m-section"></div>
+    </div>
+    <!-- Offer End -->
+  
+    <div class="m-section"></div>
+</main>
+<!-- END: Kommt in den Slot -->

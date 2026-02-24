@@ -1,0 +1,183 @@
+%%=ContentBlockByKey("UsefulLib")=%%
+<!DOCTYPE html>
+<html lang="de">
+ <head>
+  %%=TreatAsContent(ContentBlockByKey("OcHeadInclude"))=%%
+  <title>Ihr neues Angebot</title>
+ </head>
+ <body>
+   
+   <div data-type="slot" data-key="navbar" data-label="Header Area" data-max-blocks="1" data-allowed-blocks="htmlblock; layoutblock"></div>
+  
+  <script runat="server" language="ampscript">
+   SET @action = RequestParameter("action")
+   IF Empty(@action) THEN
+     SET @action = "init"
+   ENDIF
+   SET @cicId = RequestParameter("cicId")
+   SET @siteId = RequestParameter("siteId")
+   SET @sig = RequestParameter("sig")
+   SET @exp = RequestParameter("exp")
+   SET @products = RequestParameter("products")
+  </script>
+   
+  <script language="javascript" runat="server">
+   try {
+    Write("<!-- START of undo journey -->");
+
+    var cicId = Variable.GetValue("@cicId");
+    if(!cicId) {
+     cicId = Variable.GetValue("@siteId");
+    }
+    if(!cicId) {
+     throw "No cicId-Parameter";
+    }
+
+    var products = Variable.GetValue("@products");
+    if(!products) {
+     products = "copper_phout_2603";
+    }
+    if(!products) {
+     throw "No Procucts-Parameter";
+    }
+   
+    var reqconfig = {
+       id: cicId,
+       campaign: products,
+       action: Variable.GetValue("@action"),
+       level: "SUBSCRIPTION",
+       correlation_id: Platform.Function.GUID()
+    };
+     
+    var sig = Variable.GetValue("@sig");
+      if(sig) {
+        reqconfig.signature = {
+          "hash": sig
+        };
+        var exp = Variable.GetValue("@exp");
+        if(exp) {
+          reqconfig.signature.exp = exp;
+        }
+        reqconfig.signature.path = "/copper_phout_2603";
+      }
+     
+    var logData = {
+      products: products,
+      action: Variable.GetValue("@action"),
+      cicId: cicId,
+      siteId: "0",
+      lang: "DE",
+      level: "SUBSCRIPTION"
+    };
+    logOneClick(logData, false);
+    
+     var authobj = {
+      client_id: 'e5af6085e2e642eda419fd628f4324ec',
+      client_secret: '76425c167C104258a128231F792E9c0B'
+    };
+   
+    var url = 'https://sunrise-campaign-eapi-v1-80a220.crmd22.deu-c1.eu1.cloudhub.io/api/accounts/campaign-info';
+      
+    var req = new Script.Util.HttpRequest(url);
+    req.postData = Stringify(reqconfig);
+    req.emptyContentHandling = 0;
+    req.retries = 2;
+    req.continueOnError = true;
+    req.contentType = "application/json"
+    req.setHeader("client_id", authobj.client_id);
+    req.setHeader("client_secret", authobj.client_secret);
+    req.method = "POST";
+   
+    var resp = req.send();
+   
+    //OneClick API request runs into an general error
+    if (200 != resp.statusCode && 201 != resp.statusCode) throw "API call failed";
+   
+    var responseContent = Platform.Function.ParseJSON(String(resp.content));
+   
+    var ocData = responseContent.data;
+    var ocStatus = responseContent.status;
+    if ('OC0001' == ocStatus.code) {
+     //Daten zum verwenden im Design vorbereiten
+     Variable.SetValue("@ALL_DATA", String(resp.content));
+     if(isNotNullOrEmpty(ocData)) {
+      // (SITE Level) AmpScript Variablen abfüllen
+      if(isNotNullOrEmpty(ocData.salutation_string)) {
+       Variable.SetValue("@salutation_string", ocData.salutation_string);
+      }
+      if(isNotNullOrEmpty(ocData.first_name)) {
+       Variable.SetValue("@first_name", ocData.first_name);
+      }
+      if(isNotNullOrEmpty(ocData.last_name)) {
+       Variable.SetValue("@last_name", ocData.last_name);
+      }
+      if(isNotNullOrEmpty(ocData.language_code)) {
+       Variable.SetValue("@language_code", ocData.language_code);
+      }
+      if(isNotNullOrEmpty(ocData.valid_until)) {
+       Variable.SetValue("@valid_until", ocData.valid_until);
+      }
+     }
+  </script>
+  <div data-type="slot" data-key="slotsuccess" data-max-blocks="1" data-label="Success"></div>
+  <script language="javascript" runat="server">
+   } else if ('OC0007' == ocStatus.code) {
+    //Daten zum verwenden im Design vorbereiten
+    Variable.SetValue("@ALL_DATA", String(resp.content));
+    if(isNotNullOrEmpty(ocData)) {
+     // AmpScript Variablen abfüllen
+     if(isNotNullOrEmpty(ocData.new_product)) {
+      Variable.SetValue("@new_product", ocData.new_product);
+     }
+    }
+  </script>
+  
+  <div data-type="slot" data-key="slotphotocheck" data-max-blocks="1" data-label="otoId Check"></div>
+    <script language="javascript" runat="server">
+   } else if ('OC00XX' == ocStatus.code) {
+  </script>
+  
+  <div data-type="slot" data-key="slotaccepted" data-max-blocks="1" data-label="Offer accepted"></div>
+    <script language="javascript" runat="server">
+   } else if ('OC0003' == ocStatus.code) {
+  </script>
+   
+  %%=ContentBlockByKey("ocOfferExpiredDe")=%%
+
+  <script language="javascript" runat="server">
+   } else if ('OC0004' == ocStatus.code) {
+  </script>
+   
+  %%=ContentBlockByKey("ocTooLateDe")=%%
+   
+  <script language="javascript" runat="server">
+   } else if ('OC0005' == ocStatus.code) {
+  </script>
+   
+  %%=ContentBlockByKey("ocOfferClosedDe")=%%
+   
+  <script language="javascript" runat="server">
+   } else if ('OC0006' == ocStatus.code) {
+  </script>
+   
+  %%=ContentBlockByKey("ocUndoSuccessDe")=%%
+   
+  <script language="javascript" runat="server">
+   } else {
+    throw "General OneClick issue";
+   }
+   
+     Write("<!-- END of undo journey -->");
+   }
+   catch(err) {
+  </script>
+   
+  %%=ContentBlockByKey("ocErrorDe")=%%
+   
+  <script language="javascript" runat="server">
+   }
+  </script>
+  
+   <div data-type="slot" data-key="footerbar" data-max-blocks="1" data-label="Footer Area" data-allowed-blocks="htmlblock; layoutblock"></div>
+ </body>
+</html>

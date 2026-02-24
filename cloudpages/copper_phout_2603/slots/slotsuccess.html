@@ -1,0 +1,841 @@
+<main>
+    <style type="text/css" scoped="">
+        body {
+            background: var(--bs-gray-100);
+        }
+       /****** HeaderSection ******/
+       .img-responsive {
+            width: 100%;
+            height: 459px;
+            background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_mb_v2.png'); 
+            background-color: #00101D; /* For browsers that do not support gradients */
+            -webkit-image-set: background-image;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            object-fit: cover;
+            color: var(--white);
+            padding: 1rem;
+        }
+        .header-container-inner .text-container {
+            margin: 2rem 0;
+            justify-content: center;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        /* S-Large devices (large desktops, 600px and up) */
+        @media (min-width: 600px) { 
+            .img-responsive{
+                display: flex;
+                /*height: 359px;*/
+                background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_Large_v2.png');
+                color: var(--greyBackground);
+            }
+            .header-container-inner {
+                width: 60%;
+                display: flex;
+                flex-direction: row;
+                align-items: center
+            }
+            .header-container .text-container {
+                width: 70%;
+                text-align: left;
+                padding-left: 0;
+            }
+        }
+
+        /* Medium devices (tablets, 768px and up) */
+        @media (min-width: 768px) { 
+            .header-cover {
+                flex-direction: row;
+            }
+            .img-responsive{
+                /*height: 439px;*/
+                background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_Desktop_v2.png');
+            }
+         }
+       /****** HeaderSection ******/
+    
+
+        /******* Offer Secrion *******/
+        .contact-section{
+            background: var(--white);
+            width: 90%;
+            max-width: 1280px;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            position: relative;
+            display: block;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+        .contact-section-inner{
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            flex-direction: column-reverse;
+        }
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .right-section{
+            border-radius: 4px;
+            width: 100%;
+            max-width: 790px;
+            background-image: linear-gradient(to bottom, #D093A6 5%, #E7C9BC 70%);
+        }
+        .form-info-section {
+            border-radius: 8px;
+            border: 1px solid #D093A6;
+            background: linear-gradient(0deg, rgba(244, 212, 221, 0.10) 0%, rgba(244, 212, 221, 0.10) 100%), #FFF;
+            /* box-shadow: 0px 2px 4px 0px rgba(87, 84, 82, 0.20); */
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+        .form-section-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .section-inner-left {
+            text-align: left;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .section-inner-right {
+            text-align: left;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--Extended-Light-Pink-Sky, #F4D4DD);
+            background: var(--Primary-colour-Ice-White, #FFF);
+            display: flex;
+            padding: 1rem;
+            flex-direction: column;
+        }
+        .section-inner-img {
+            width: 100%;
+            background: linear-gradient(180deg, #D093A6 0%, #E7C9BC 85.35%);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .section-inner-img img{
+            max-width: 60%;
+            padding: 1rem;
+        }
+        .codeproof-inner {
+            gap: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .force-white {
+            color: white !important;
+        }
+        
+        /****** Photo Upload Section ******/
+        .dropzone-section{
+            background: #FCF2F5;
+            border: 2px dashed #D093A6;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            user-select: none;
+
+            /* ✅ transition ต้องอยู่ตรงนี้ */
+            transition:
+            /*transform 0.25s ease,*/
+            background-color 0.25s ease;
+        }
+        .dropzone-section:hover{
+            background-color: #F8E5EB;
+        }
+        .dropzone-section input[type="file"]{
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .dropPreview{
+            display:none;
+            object-fit: cover;
+            max-height: 190px;
+            width:100%; 
+            border-radius: 8px;
+            margin: 8px auto 0;
+        }
+        .dropzone-section input[type="file"]{
+            position:absolute;
+            inset:0;
+            opacity:0;
+            cursor:pointer;
+        }
+        .dropzone-section.has-preview input[type="file"]{
+            pointer-events: none;
+        }
+        /* preview box */
+        .previewWrap{
+            position: relative;
+            display:none;
+            object-fit: cover;
+            max-height: 190px;
+            width:100%; 
+            border-radius: 8px;
+            margin: 8px auto 0;
+        }
+        /* preview image */
+        #dropPreview{
+            display:none;
+            object-fit: cover;
+            max-height: 190px;
+            width:100%; 
+            border-radius: 8px;
+            margin: 8px auto 0;
+        }
+        /* remove button */
+        .remove-btn, .symbolOverlay__close{
+            position:absolute;
+            top:6px;
+            right:6px;
+            width:28px;
+            height:28px;
+            border-radius:999px;
+            border:none;
+            display:flex;
+            align-items:center;
+            justify-content:center; 
+            padding:0;
+            background:var(--sunriseRed);
+            color:var(--white);
+            font-size:18px;
+            cursor:pointer;
+            line-height:1;
+            z-index:2; 
+        }
+        /* overlay */
+        .symbolOverlay{
+            display:none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .symbolOverlay.is-open{ 
+            display:flex; 
+        }
+        .symbolOverlay__img{
+            max-width: min(92vw, 900px);
+            max-height: 88vh;
+            border-radius: 8px;
+            background: #fff;
+        }
+        /****** Photo Upload Section ******/
+
+
+        /****** Accordion-FAQ Section ******/
+        button {
+            position: relative;
+            display: block;
+            text-align: left;
+            width: 100%;
+            background: none;
+            border-top: 1px solid var(--lineBreak);
+            border-bottom: none;
+            border-right: none;
+            border-left: none;
+        }
+        .accordion-faq {
+            width: 100%;
+            cursor: pointer;
+            padding: 1.5rem 0;
+            transition: 0.4s;
+        }
+        .active {
+            transition: 0.4s;
+        }
+        .accordion-faq:hover {
+            font-weight: 700; 
+            color: var(--sunriseRed);
+            /* border-bottom: .5px solid var(--sunriseRed); */
+        }
+        .inneraccordion {
+            display: none;
+            overflow: hidden;
+            animation: anim-ShowUp 2s forwards ease-in-out;
+            text-align: left;
+        }
+        .accordion-item-img {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            justify-content: space-between;
+        }
+        .accordion-item-img img{
+            min-width: 100%;
+            width: 300px;
+        }
+        .force-text{
+            color: var(--textColor) !Important; 
+        }
+        /****** Accordion Section ******/
+
+        /* S-Large devices (large desktops, 600px and up) */
+        @media (min-width: 600px) { 
+            .section-inner-img img{
+                max-width: 60%;
+            }
+        }
+
+        /* Medium devices (tablets, 768px and up) */
+    @media (min-width: 768px) { 
+        .contact-section-inner{
+            display: flex;
+            gap: 2rem;
+            justify-content: space-between;
+            flex-direction: row;
+            flex-wrap: nowrap;
+        } 
+        .form-section-inner {
+            flex-direction: row;
+        }
+        .section-inner-left {
+            width: 50%;
+        }
+        .section-inner-right {
+            width: 50%;
+            display: flex;
+            justify-content: space-between;
+        }
+        /* .section-inner-img img{
+            max-width: 100%;
+        } */
+        .left-section,
+        .right-section {
+            width: 50%;
+        }
+        .lea-picture,
+        .right-section{
+            max-width: 349px;
+        }
+        .accordion-item-img{
+            flex-direction: row;
+            padding-bottom: 1.5rem;
+        }
+    }
+    /* Large devices (desktops, 992px and up) */
+    @media (min-width: 992px) { 
+        .l-center-l{
+            max-width: var(--bs-breakpoint-lg);
+        }
+        .l-center-md{
+            max-width: var(--bs-breakpoint-md);
+        }
+        .codeproof-inner {
+            flex-direction: row;
+        }
+    }
+    </style>
+
+    <!-- Header START -->
+    <div class="header-container" style="text-align: center;">
+        <div class="img-responsive header-cover">
+            <div class="header-container-inner">
+                <div class="text-container lineUp" style="color: var(--white);">
+                    <p style="text-transform: none; font-weight: 500;">Schnell, Stabil, Zukunftssicher</p>
+                    <div class="xxs-section"></div>
+                    <span>OTO-ID-Informationen für die Glasfaserverbindung</span>
+                    <!-- <div class="xxs-section"></div>
+                    <p style="text-transform: none; font-weight: 500;">Weil du uns wichtig bist.</p> -->
+                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <div class="m-section"></div>
+
+    <div class="background-hover-nobg">
+        <div class="l-center-l xs-section">
+            <h1>Modernisierung Ihres Internetzugangs auf Glasfaser</h1>
+            <div class="m-section"></div>
+            <p class="p20">%%=v(@salutation_string)=%%</p>
+            <div class="xs-section"></div>
+            <p class="p20">Bei Sunrise setzen wir alles daran, Ihnen das bestmögliche Interneterlebnis zu bieten.</p>
+            <div class="xs-section"></div>
+            <p class="p20">Damit Sie einen besseren Service geniessen, nutzen Sie Ihre Produkte künftig über das Glasfasernetz. Wir stellen Ihre Produkte auch deshalb um, weil die bisherige Technologie zunehmend veraltet und nicht mehr zukunftsfähig&nbsp;ist.</p>
+        </div>
+    </div>
+
+    <div class="m-section"></div>
+    <!-- Form-OTO Input -->
+    <div class="background-full">
+        <div class="background-full-inner">
+            <div class="form-info-section l-center-l">
+                <div class="form-section-inner">
+                    <div class="section-inner-left">
+                        <div class="featureblock">
+                            <div class="feature-flexed" style="margin-top: 0;">
+                                <span><img src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-info-circle.png" width="25px" alt="info-circle"></span>
+                                <span>
+                                    <p><strong>Wichtig</strong></p>
+                                </span>
+                            </div>
+                            <p>Ihr Standort ist bereits an das Glasfasernetz angeschlossen, was den reibungslosen Übergang zum neuen Dienst vereinfacht. Um sicherzustellen, dass wir Ihnen das passende Gerät zusenden, bitten wir Sie, uns die OTO-ID-Nummer Ihrer Glasfasersteckdose mitzuteilen.</p>
+                            <div class="divider"></div>
+                            <p>Sie beginnt In der Regel mit A oder B (in Ausnahmefällen mit O oder WP), gefolgt von neun oder zehn Ziffern in folgendem Format:</p>
+                            <div class="xxs-section"></div>
+                            <p><strong>A.XXX.XXX.XXX oder B.XXX.XXX.XXX.X</strong></p>
+                        </div>
+
+                        <div class="xs-section">
+                            <p>Allenfalls kann Ihnen auch Ihre Verwaltung oder Ihr Vormieter dazu Auskunft geben.</p>
+                        </div>
+                    </div>
+
+                    <div class="section-inner-right">
+                        <div class="codeproof-section">
+                            <form id="fValidate" name="fValidate" method="GET">
+                                <h6><strong>Bitte geben Sie Ihre OTO-ID ein</strong></h6>
+                                <div class="dropzone-section xxs-section" id="dropzone" role="button" aria-label="Bild hochladen">
+                                    <img class="xs-section" width="70px" src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/2602_oto_id-iconimage.png" alt="icon" id="dropIcon">
+                                    <div class="xxs-section"></div>
+                                    <p class="side-text"><strong>Bild hochladen</strong></p>
+                                    <p class="side-text">Unterstützte Formate: JPG, PNG</p>
+                                  
+                                    <!-- Preview -->
+                                    <div class="previewWrap" id="previewWrap" style="display:none;">
+                                        <button type="button" id="removeImageBtn" class="remove-btn" aria-label="Bild entfernen">−</button>
+                                        <img id="dropPreview" alt="Vorschau" style="display:none;">
+                                    </div>
+                                    <!-- Preview -->
+
+                                    <input id="fileInput" type="file" accept="image/jpeg,image/png" />
+                                </div>
+                                  
+                                <!-- Overlay Img -->
+                                <div id="symbolOverlay" class="symbolOverlay" aria-hidden="true">
+                                    <button type="button" class="symbolOverlay__close" id="symbolOverlayClose" aria-label="Schließen">×</button>
+                                    <img id="symbolOverlayImg" class="symbolOverlay__img" alt="Vorschau groß">
+                                </div>
+                                
+                                <div class="s-section"></div>
+
+                                <h6>Klicken Sie <strong style="color: var(--sunriseRed);">hier</strong>, um Ihre OTO‑ID manuell einzugeben.</h6>
+                                
+                                <!-- btn section -->
+                                <div class="button-section xs-section">
+                                    <button type="button" class="btn-sr-primary dynamic-submit submitValidationForm" data-action="accept" data-cicid="%%=v(@cicId)=%%">
+                                        <p>Senden</p>
+                                    </button>
+                                </div>
+                                <!-- btn section -->
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="m-section"></div>
+    </div>
+
+    <!-- FAQ-Start Section -->
+    <div class="background-hover-nobg">
+        <h3>HÄUFIGE FRAGEN</h3>
+
+        <div class="m-section"></div>
+
+        <!-- FAQ-01 Start-->
+        <div class="faq-item">
+            <button class="accordion-faq m-section feature-flexed" style="justify-content: space-between;">
+                <span><p class="afontcolour force-text">Was ist eine Glasfasersteckdose?</p></span>
+                <span><img class="icon" class="icon"src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-chevron-down.png" width="25px" alt="icon-clock"></span>
+            </button>
+
+            <div class="s-section inneraccordion panel">
+                <p class="accordion-item" style="display: flex;">
+                    <span style="padding-right: 4px;">– </span>
+                    <span>Die Glasfasersteckdose ist eine Telekommunikationsanschlussdose (OTO – Optical Termination Outlet), mit der Ihr Haus an unser ultraschnelles Glasfasernetz angeschlossen wird.</span>
+                </p>
+                <div class="xxs-section"></div>
+                <p class="accordion-item" style="display: flex;">
+                    <span style="padding-right: 4px;">– </span>
+                    <span>Sie hat eine eindeutige Identifikationsnummer, die sogenannte Fiber Socket Number (OTO-ID). Das Glasfaserkabel (Patchkabel) wird dort eingesteckt und bildet so die optische Schnittstelle zwischen Ihrem Gerät und dem Glasfasernetzanschluss.</span>
+                </p>
+                <div class="xxs-section"></div>
+                <p class="accordion-item" style="display: flex;">
+                    <span style="padding-right: 4px;">– </span>
+                    <span>Eine Glasfasersteckdose hat bis zu vier Anschlüsse – die Nummern 1 bis 4 sind auf der Unterseite der Steckdose aufgedruckt.</span>
+                </p>
+                <div class="xxs-section"></div>
+                <p class="accordion-item" style="display: flex;">
+                    <span style="padding-right: 4px;">– </span>
+                    <span>Welche dieser Anschlüsse fIhr Produkt verwenden wird, teilen wir Ihnen während des Aufschaltprozesses mit.</span>
+                </p>
+            </div>
+        </div>
+        <!-- FAQ-01 End-->
+
+        <!-- FAQ-02 Start-->
+        <div class="faq-item">
+            <button class="accordion-faq s-section feature-flexed" style="justify-content: space-between;">
+                <span><p class="afontcolour force-text">Wie finde und erkenne ich meine Glasfasersteckdose?</p></span>
+                <span><img class="icon" class="icon"src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-chevron-down.png" width="25px" alt="icon-clock"></span>
+            </button>
+
+            <div class="s-section inneraccordion panel">
+                <div class="accordion-item-img">
+                    <div>
+                        <p class="accordion-item" >Wenn Ihre Wohnung an das Glasfasernetz angeschlossen ist, haben Sie in den meisten Fällen auch eine Glasfasersteckdose. In der Regel finden Sie diese in Ihrem Wohnzimmer oder im Flur.
+                            <br><br />Beispiele verschiedener Typen von Glasfasersteckdosen:
+                        </p>
+                    </div>
+
+                    <div>
+                        <img src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KVfaq-fiber_socket_1.png" alt="fiber_socket" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- FAQ-02 End-->
+
+        <!-- FAQ-03 Start-->
+        <div class="faq-item">
+            <button class="accordion-faq s-section feature-flexed" style="justify-content: space-between;">
+                <span><p class="afontcolour force-text">Falls Sie die Glasfasersteckdose nicht finden können, lesen Sie bitte den folgenden Leitfaden:</p></span>
+                <span><img class="icon" class="icon"src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-chevron-down.png" width="25px" alt="icon-clock"></span>
+            </button>
+
+            <div class="s-section inneraccordion panel">
+                <div class="accordion-item-img">
+                    <div>
+                        <p><strong>Ältere Gebäude</strong></p>
+                        <div class="xs-section"></div>
+                        <p class="accordion-item" >In Ihrem Wohnzimmer oder Korridor ist die Dose im Regelfall in einer Höhe von ca. 20 cm angebracht. Die Steckdose befindet sich normalerweise neben einer Standard- oder Kupfersteckdose oder einem Kabelanschluss.</p>
+                        <p class="accordion-item" >Falls Sie Fragen haben oder weitere Hilfe benötigen, wenden Sie sich an unsere Kundenservice-Hotline. Wir unterstützen Sie gerne.</p>
+                    </div>
+
+                    <div>
+                        <img src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KVfaq-fiber_socket_2.png" alt="fiber_socket" />
+                    </div>
+                </div>
+
+                <div class="accordion-item-img xs-section">
+                    <div>
+                        <p><strong>Neuere Gebäude mit Multimedia-Boxen</strong></p>
+                        <div class="xs-section"></div>
+                        <p class="accordion-item" >In neueren Gebäuden findet sich die Glasfasersteckdose meist in einem Multimediakasten im Eingangsflur.</p>
+                    </div>
+
+                    <div>
+                        <img src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KVfaq-fiber_socket_3.png" alt="fiber_socket" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- FAQ-03 End-->
+
+        <!-- FAQ-04 Start-->
+        <div class="faq-item">
+            <button class="accordion-faq s-section feature-flexed" style="justify-content: space-between;">
+                <span><p class="afontcolour force-text">Ihre Glasfasersteckdose ist nicht mit einer Glasfasersteckdosennummer (OTO-ID) gekennzeichnet?</p></span>
+                <span><img class="icon" class="icon"src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-chevron-down.png" width="25px" alt="icon-clock"></span>
+            </button>
+
+            <div class="s-section inneraccordion panel">
+                <p class="accordion-item" >Wenden Sie sich an Ihren Hauswart, um die Glasfasersteckdosennummer (OTO-ID) zu erfahren. Auch Ihre Hausverwaltung oder Ihr Vormieter kann Ihnen diese Informationen zur Verfügung stellen.</p>
+            </div>
+        </div>
+        <!-- FAQ-04 End-->
+
+        <!-- FAQ-05 Start-->
+        <div class="faq-item">
+            <button class="accordion-faq s-section feature-flexed" style="justify-content: space-between;">
+                <span><p class="afontcolour force-text">Aufbau der Glasfasersteckdose</p></span>
+                <span><img class="icon" class="icon"src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-chevron-down.png" width="25px" alt="icon-clock"></span>
+            </button>
+
+            <div class="s-section inneraccordion panel">
+                <p class="accordion-item" style="display: flex;">
+                    <span style="padding-right: 4px;">1. </span>
+                    <span>Nummer der Glasfasersteckdose (OTO-ID)</span>
+                </p>
+                <div class="xxs-section"></div>
+                <p class="accordion-item" style="display: flex;">
+                    <span style="padding-right: 4px;">2. </span>
+                    <span>Anschlüsse 1 bis 4</span>
+                </p>
+                <div class="xxs-section"></div>
+                <p class="accordion-item" style="display: flex;">
+                    <span style="padding-right: 4px;">3. </span>
+                    <span>Anschluss für das Glasfaserkabel (Patchkabel)</span>
+                </p>
+            </div>
+        </div>
+        <!-- FAQ-05 End-->
+
+        <div class="m-section"></div>
+    </div>
+    <!-- FAQ-End Section -->
+
+    <!-- Form-OTO Input -->
+    <script id="baseScript">
+        // ---------- Toast ----------
+        function showErrorToast(message) {
+          Toastify({
+            text: message,
+            offset: { x: "2em", y: "4em" },
+            style: {
+              background: "var(--lightBackground)",
+              border: "1px solid #d093a6",
+              color: "var(--greyBackground)",
+              borderRadius: "6px"
+            }
+          }).showToast();
+        }
+      
+        // ---------- OTO validation ----------
+        function validateOto(code) {
+          const v = (code || "").trim();
+          if (v === "") return false;
+          const pattern = /^(A|B|O|WP)\.\d{3}\.\d{3}\.\d{3}(\.(X|\d))?$/;
+          return pattern.test(v);
+        }
+      
+        // ---------- Image validation ----------
+        const MAX_FILE_BYTES = 8 * 1024 * 1024; // 8MB
+        const ALLOWED_TYPES = ["image/jpeg", "image/png"];
+      
+        function getSelectedFile() {
+          return document.getElementById("fileInput")?.files?.[0] || null;
+        }
+      
+        function validateImageFile(file) {
+          if (!file) return { ok: false, msg: "Keine Datei ausgewählt." };
+          if (!ALLOWED_TYPES.includes(file.type)) return { ok: false, msg: "Bitte nur JPG oder PNG hochladen." };
+          if (file.size > MAX_FILE_BYTES) return { ok: false, msg: "Die Datei ist zu groß. Max. 8 MB." };
+          return { ok: true };
+        }
+      
+        function hasUploadedImage() {
+          return !!getSelectedFile();
+        }
+      
+        // ---------- Preview ----------
+        let previewUrl = null;
+      
+        function setDropPreview(file) {
+          const dropzone = document.getElementById("dropzone");
+          const wrap = document.getElementById("previewWrap");
+          const dropPreview = document.getElementById("dropPreview");
+          const dropIcon = document.getElementById("dropIcon");
+          const removeBtn = document.getElementById("removeImageBtn");
+      
+          if (!dropPreview || !dropzone) return;
+      
+          // cleanup old url
+          if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            previewUrl = null;
+          }
+      
+          if (!file) {
+            dropzone.classList.remove("has-preview"); // ✅ important for pointer-events fix
+            if (wrap) wrap.style.display = "none";
+            dropPreview.style.display = "none";
+            dropPreview.removeAttribute("src");
+            if (dropIcon) dropIcon.style.display = "";
+            if (removeBtn) removeBtn.style.display = "none";
+            return;
+          }
+      
+          previewUrl = URL.createObjectURL(file);
+          dropPreview.src = previewUrl;
+      
+          dropzone.classList.add("has-preview"); // ✅ important for pointer-events fix
+          if (wrap) wrap.style.display = "block";
+          dropPreview.style.display = "block";
+          if (dropIcon) dropIcon.style.display = "none";
+          if (removeBtn) removeBtn.style.display = "inline-flex";
+        }
+      
+        function clearImageSelection() {
+          const fileInput = document.getElementById("fileInput");
+          if (fileInput) fileInput.value = "";
+          setDropPreview(null);
+        }
+      
+        // ---------- Overlay ----------
+        function openOverlay(src) {
+          const overlay = document.getElementById("symbolOverlay");
+          const img = document.getElementById("symbolOverlayImg");
+          if (!overlay || !img) return;
+      
+          img.src = src;
+          overlay.classList.add("is-open");
+          overlay.setAttribute("aria-hidden", "false");
+        }
+      
+        function closeOverlay() {
+          const overlay = document.getElementById("symbolOverlay");
+          const img = document.getElementById("symbolOverlayImg");
+          if (!overlay || !img) return;
+      
+          overlay.classList.remove("is-open");
+          overlay.setAttribute("aria-hidden", "true");
+          img.removeAttribute("src");
+        }
+      
+        // ---------- Form validation ----------
+        function validateForm() {
+          const errors = [];
+          const otoInput = document.getElementById("input_otoId");
+          const otoValue = (otoInput?.value || "").trim();
+      
+          const file = getSelectedFile();
+          const hasImage = !!file;
+      
+          if (otoValue === "" && !hasImage) errors.push("Bitte laden Sie ein Bild hoch oder geben Sie eine OTO-ID ein");
+          if (otoValue !== "" && !validateOto(otoValue)) errors.push("Bitte geben Sie eine gültige OTO-ID ein");
+      
+          if (hasImage) {
+            const v = validateImageFile(file);
+            if (!v.ok) errors.push(v.msg);
+          }
+      
+          if (errors.length) {
+            errors.forEach(showErrorToast);
+            if (otoInput && otoValue !== "" && !validateOto(otoValue)) {
+              otoInput.focus();
+              otoInput.select();
+            }
+            return false;
+          }
+          return true;
+        }
+      
+        // ---------- Wire up ----------
+        jQuery(document).ready(function ($) {
+          // initial state
+          setDropPreview(null);
+      
+          // select file -> validate -> preview
+          $("#fileInput").on("change", function () {
+            const file = getSelectedFile();
+            if (!file) { setDropPreview(null); return; }
+      
+            const v = validateImageFile(file);
+            if (!v.ok) {
+              showErrorToast(v.msg);
+              clearImageSelection();
+              return;
+            }
+      
+            setDropPreview(file);
+          });
+      
+          // click preview -> open overlay
+          $(document).on("click", "#dropPreview", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const src = this.getAttribute("src");
+            if (src) openOverlay(src);
+          });
+      
+          // remove button
+          $("#removeImageBtn").on("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            clearImageSelection();
+          });
+      
+          // close overlay
+          $(document).on("click", "#symbolOverlayClose", function (e) {
+            e.preventDefault();
+            closeOverlay();
+          });
+      
+          // backdrop closes
+          $(document).on("click", "#symbolOverlay", function (e) {
+            if (e.target && e.target.id === "symbolOverlay") closeOverlay();
+          });
+      
+          // esc closes
+          $(document).on("keydown", function (e) {
+            if (e.key === "Escape") closeOverlay();
+          });
+      
+          // prevent double popup from bubbling
+          $("#fileInput").on("click", function (e) {
+            e.stopPropagation();
+          });
+      
+          // click dropzone: open picker ONLY when no preview (prevents annoying reopen)
+          $("#dropzone").on("click", function (e) {
+            const dz = document.getElementById("dropzone");
+            if (dz && dz.classList.contains("has-preview")) return;
+      
+            // if clicking directly on the input, let it do its job
+            if (e.target && e.target.id === "fileInput") return;
+      
+            document.getElementById("fileInput")?.click();
+          });
+      
+          // submit
+          $(".submitValidationForm").on("click", function (event) {
+            if (!validateForm()) {
+              event.preventDefault();
+              event.stopImmediatePropagation();
+              return;
+            }
+      
+            const otoValue = (document.getElementById("input_otoId")?.value || "").trim();
+            const hasImage = hasUploadedImage();
+      
+            if (otoValue) $(this).attr("data-extra-otoid", otoValue);
+            if (hasImage) $(this).attr("data-extra-otoimage", "uploaded");
+          });
+        });
+      
+        // cleanup
+        window.addEventListener("beforeunload", function () {
+          if (previewUrl) URL.revokeObjectURL(previewUrl);
+        });
+      </script>
+    <!-- Form-OTO Input -->
+  
+    <script id="baseScript">
+        var acc = document.getElementsByClassName("faq-item");
+        var i;
+
+        for (i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var inneraccordion = this.nextElementSibling;
+            var icon = this.querySelector(".icon");
+            var panel = this.querySelector(".panel");
+
+            if (panel.style.display === "block") {
+            panel.style.display = "none";
+            icon.src = "https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-chevron-down.png";
+            } else {
+            panel.style.display = "block";
+            icon.src = "https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-chevron-up.png";
+            }
+        });
+        }
+    </script>
+</main>
