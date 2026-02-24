@@ -60,7 +60,7 @@
       if (imagedata && imagedata.length > 100) {
 
         /* ── Schritt 1: SFMC OAuth-Token holen ─────────────────── */
-        var sfmcAuthReq = new Script.Util.HttpRequest("##SFMC_AUTH_URL##/v2/token");
+        var sfmcAuthReq = new Script.Util.HttpRequest("https://mcpwtx3tq0h63306gmq1cz4r728q.auth.marketingcloudapis.com/v2/token");
         sfmcAuthReq.method              = "POST";
         sfmcAuthReq.contentType         = "application/json";
         sfmcAuthReq.emptyContentHandling = 0;
@@ -68,8 +68,8 @@
         sfmcAuthReq.continueOnError     = true;
         sfmcAuthReq.postData = Stringify({
           "grant_type":    "client_credentials",
-          "client_id":     "##SFMC_ASSETS_CLIENT_ID##",
-          "client_secret": "##SFMC_ASSETS_CLIENT_SECRET##"
+          "client_id":     "ur7hnq3p10ty458db3ib0cnt",
+          "client_secret": "##SFMC_ASSETS_CLIENT_SECRET##"  /* TODO: Installed Package Client Secret eintragen */
         });
         var tokenResp = sfmcAuthReq.send();
 
@@ -79,7 +79,7 @@
           /* ── Schritt 2: Asset in Content Builder hochladen ────── */
           var assetName = "oto_" + Platform.Function.GUID() + ".jpg";
 
-          var uploadReq = new Script.Util.HttpRequest("##SFMC_REST_BASE_URL##/asset/v1/content/assets");
+          var uploadReq = new Script.Util.HttpRequest("https://mcpwtx3tq0h63306gmq1cz4r728q.rest.marketingcloudapis.com/asset/v1/content/assets");
           uploadReq.method              = "POST";
           uploadReq.contentType         = "application/json";
           uploadReq.emptyContentHandling = 0;
@@ -90,7 +90,7 @@
             "name":      assetName,
             "assetType": { "name": "jpg" },
             "file":      imagedata,
-            "category":  { "id": ##SFMC_FOLDER_ID## }
+            "category":  { "id": ##SFMC_FOLDER_ID## }  /* TODO: Folder-ID von Content Builder -> Assets -> realtime -> otoid eintragen. Tipp: GET /asset/v1/content/categories?$filter=name%20eq%20'otoid' */
           });
           var uploadResp = uploadReq.send();
 
