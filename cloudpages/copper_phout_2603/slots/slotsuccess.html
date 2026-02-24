@@ -438,7 +438,7 @@
                                 
                                 <!-- btn section -->
                                 <div class="button-section xs-section">
-                                    <button type="button" class="btn-sr-primary dynamic-submit submitValidationForm" data-action="accept" data-cicid="%%=v(@cicId)=%%">
+                                    <button type="button" class="btn-sr-primary dynamic-submit submitValidationForm" data-action="photocheck" data-cicid="%%=v(@cicId)=%%">
                                         <p>Senden</p>
                                     </button>
                                 </div>
@@ -794,20 +794,90 @@
             document.getElementById("fileInput")?.click();
           });
       
-          // submit
-          $(".submitValidationForm").on("click", function (event) {
-            if (!validateForm()) {
-              event.preventDefault();
-              event.stopImmediatePropagation();
-              return;
+          // ---------- Manual form submit (replaces dynamic-submit for this step) ----------
+        function submitToPhotocheck(btn, extraFields) {
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = btn.getAttribute("data-target") || "";
+
+          function addField(name, value) {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = name;
+            input.value = value || "";
+            form.appendChild(input);
+          }
+
+          addField("action", btn.getAttribute("data-action") || "photocheck");
+          addField("cicId",  btn.getAttribute("data-cicid") || "");
+
+          Object.keys(extraFields).forEach(function(key) {
+            if (extraFields[key] !== undefined && extraFields[key] !== null) {
+              addField(key, extraFields[key]);
             }
-      
-            const otoValue = (document.getElementById("input_otoId")?.value || "").trim();
-            const hasImage = hasUploadedImage();
-      
-            if (otoValue) $(this).attr("data-extra-otoid", otoValue);
-            if (hasImage) $(this).attr("data-extra-otoimage", "uploaded");
           });
+
+          document.body.appendChild(form);
+          form.submit();
+        }
+
+        // ---------- Bild komprimieren + als Base64 auslesen ----------
+        function compressAndReadBase64(file, callback) {
+          const MAX_PX  = 1500;   // maximale Kantenlänge in px
+          const QUALITY = 0.85;   // JPEG-Qualität
+
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+              let w = img.width, h = img.height;
+              if (w > MAX_PX || h > MAX_PX) {
+                if (w >= h) { h = Math.round(h * MAX_PX / w); w = MAX_PX; }
+                else        { w = Math.round(w * MAX_PX / h); h = MAX_PX; }
+              }
+              const canvas = document.createElement("canvas");
+              canvas.width = w;
+              canvas.height = h;
+              canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+              // Immer als JPEG ausgeben (gute Kompression, lesbar für Qolaba)
+              const dataUrl = canvas.toDataURL("image/jpeg", QUALITY);
+              // Prefix "data:image/jpeg;base64," entfernen → reines Base64
+              callback(dataUrl.split(",")[1]);
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+
+        // ---------- Submit ----------
+        $(".submitValidationForm").on("click", function (event) {
+          // Immer stopPropagation: wir übernehmen den Submit selbst,
+          // damit der dynamic-submit Handler aus oneclick.min.js nicht zusätzlich feuert.
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (!validateForm()) return;
+
+          const btn = this;
+          const otoValue = (document.getElementById("input_otoId")?.value || "").trim();
+          const file = getSelectedFile();
+
+          if (file) {
+            // Async-Pfad: Bild komprimieren, dann absenden
+            compressAndReadBase64(file, function(base64) {
+              submitToPhotocheck(btn, {
+                otoid:     otoValue || "",
+                imagedata: base64,
+                imagetype: "jpeg"
+              });
+            });
+          } else {
+            // Synchron-Pfad: nur manuelle OTO-ID
+            submitToPhotocheck(btn, {
+              otoid: otoValue
+            });
+          }
+        });
         });
       
         // cleanup

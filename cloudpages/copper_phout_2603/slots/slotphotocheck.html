@@ -249,37 +249,48 @@
                 <div class="form-section-inner">
                     <div class="codeproof-section">
                         <form id="fValidate" name="fValidate" method="GET">
-                            <div class="dropzone-section" id="dropzone" role="button" aria-label="Bild hochladen">
-                                <img class="xs-section" width="70px" src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/2602_oto_id-iconimage.png" alt="icon" id="dropIcon">
-                            
-                                <!-- Preview -->
-                                <div class="previewWrap" id="previewWrap" style="display:none;">
-                                    <button type="button" id="removeImageBtn" class="remove-btn" aria-label="Bild entfernen">−</button>
-                                    <img id="dropPreview" alt="Vorschau" style="display:none;">
-                                </div>
-                                <!-- Preview -->
 
-                                <input id="fileInput" type="file" accept="image/jpeg,image/png" />
+                            <!-- Hochgeladenes Foto anzeigen (URL kommt von SFMC Asset API via @imageUrl) -->
+                            %%[ IF NOT Empty(@imageUrl) THEN ]%%
+                            <div class="dropzone-section" id="photoDisplay" style="cursor: default; pointer-events: none;">
+                                <div class="previewWrap" id="previewWrap" style="display: block;">
+                                    <img id="uploadedPhoto"
+                                         src="%%=v(@imageUrl)=%%"
+                                         alt="Ihr hochgeladenes Foto"
+                                         style="display: block; object-fit: cover; max-height: 190px; width: 100%; border-radius: 8px;">
+                                </div>
                             </div>
-                            
-                            <!-- Overlay Img -->
+                            %%[ ELSE ]%%
+                            <!-- Kein Bild vorhanden (manuelle Eingabe oder Upload fehlgeschlagen) -->
+                            <div class="dropzone-section" id="photoDisplay" style="cursor: default; pointer-events: none;">
+                                <img width="70px"
+                                     src="https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/2602_oto_id-iconimage.png"
+                                     alt="OTO-ID Icon">
+                            </div>
+                            %%[ ENDIF ]%%
+
+                            <!-- Overlay für Bild-Vollansicht (bei Klick) -->
                             <div id="symbolOverlay" class="symbolOverlay" aria-hidden="true">
                                 <button type="button" class="symbolOverlay__close" id="symbolOverlayClose" aria-label="Schließen">×</button>
                                 <img id="symbolOverlayImg" class="symbolOverlay__img" alt="Vorschau groß">
                             </div>
-                            
+
                             <div class="s-section"></div>
 
                             <h6><strong>Ihre OTO-ID lautet:</strong></h6>
                             <div class="xxs-section codeproof-inner">
                                 <div class="s20-form-item s20-2form" style="width: 100%; margin-bottom: 0px;">
                                     <div class="form-floating s20-form-input s20-form-input--otoId s20-form-input--md">
-                                        <input class="form-control" id="input_otoId" name="input_otoId" placeholder="A.XXX.XXX.XXX oder B.XXX.XXX.XXX.X" type="text" value="">
-                                        <label for="floatingInputValue">OTO-ID</label>
+                                        <!-- Phase 2: value wird via Qolaba vorausgefüllt (%%=v(@otoId)=%%) -->
+                                        <input class="form-control" id="input_otoId" name="input_otoId"
+                                               placeholder="A.XXX.XXX.XXX oder B.XXX.XXX.XXX.X"
+                                               type="text"
+                                               value="%%=v(@otoId)=%%">
+                                        <label for="input_otoId">OTO-ID</label>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- btn section -->
                             <div class="button-section xs-section">
                                 <button type="button" class="btn-sr-primary dynamic-submit submitValidationForm" data-action="accept" data-cicid="%%=v(@cicId)=%%">
@@ -352,15 +363,45 @@
         }
 
         jQuery(document).ready(function ($) {
+
+            // Foto-Vollansicht per Klick öffnen
+            $(document).on("click", "#uploadedPhoto", function () {
+                const src = this.getAttribute("src");
+                if (!src) return;
+                const overlay = document.getElementById("symbolOverlay");
+                const img     = document.getElementById("symbolOverlayImg");
+                if (!overlay || !img) return;
+                img.src = src;
+                overlay.classList.add("is-open");
+                overlay.setAttribute("aria-hidden", "false");
+            });
+
+            // Overlay schliessen
+            $(document).on("click", "#symbolOverlayClose, #symbolOverlay", function (e) {
+                if (e.target.id === "symbolOverlay" || e.target.id === "symbolOverlayClose") {
+                    const overlay = document.getElementById("symbolOverlay");
+                    const img     = document.getElementById("symbolOverlayImg");
+                    if (overlay) overlay.classList.remove("is-open");
+                    if (img) img.removeAttribute("src");
+                }
+            });
+            $(document).on("keydown", function (e) {
+                if (e.key === "Escape") {
+                    const overlay = document.getElementById("symbolOverlay");
+                    if (overlay) overlay.classList.remove("is-open");
+                }
+            });
+
+            // Formular-Submit: OTO-ID validieren und via dynamic-submit übergeben
             $(".submitValidationForm").on("click", function (event) {
                 if (!validateForm()) {
                     event.preventDefault();
                     event.stopImmediatePropagation();
                     return;
                 }
-
-                const otoValue = document.getElementById("input_otoId").value;
+                const otoValue = document.getElementById("input_otoId").value.trim();
                 $(this).attr("data-extra-otoid", otoValue);
+                // dynamic-submit (oneclick.min.js) übernimmt ab hier den POST
             });
         });
     </script>
