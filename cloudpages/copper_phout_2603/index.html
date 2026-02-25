@@ -28,14 +28,12 @@
   </script>
 
   <!-- ═══════════════════════════════════════════════════════════════════
-       SSJS: Haupt-Logik
+       SSJS: Logik
   ═══════════════════════════════════════════════════════════════════ -->
   <script language="javascript" runat="server">
    try {
     Write("<!-- START of journey -->");
-
-    /* ── Umgebung wählen: "TEST" | "PROD" ───────────────────────── */
-    var ENV   = "PROD";
+    var ENV   = "TEST";
     var ocEnv = _OC_CONFIG[ENV];
 
     /* ── Pflichtparameter prüfen ─────────────────────────────────── */
@@ -50,19 +48,16 @@
 
     /* ══════════════════════════════════════════════════════════════
        BRANCH A: action=photocheck
-       → Kein OneClick-Call
        → Bild (Base64) via SFMC Asset API hochladen und URL holen
-       → slotphotocheck rendern
     ══════════════════════════════════════════════════════════════ */
     if (action === "photocheck") {
-
       var imagedata = Variable.GetValue("@imagedata");
       var imagetype = Variable.GetValue("@imagetype") || "jpeg";
       var imageUrl  = "";
 
       if (imagedata && imagedata.length > 100) {
 
-        /* ── Schritt 1: SFMC OAuth-Token holen ─────────────────── */
+        /* ── Schritt 1: Token holen ─────────────────── */
         var sfmcAuthReq = new Script.Util.HttpRequest("https://mcpwtx3tq0h63306gmq1cz4r728q.auth.marketingcloudapis.com/v2/token");
         sfmcAuthReq.method              = "POST";
         sfmcAuthReq.contentType         = "application/json";
@@ -72,14 +67,14 @@
         sfmcAuthReq.postData = Stringify({
           "grant_type":    "client_credentials",
           "client_id":     "ur7hnq3p10ty458db3ib0cnt",
-          "client_secret": "##SFMC_ASSETS_CLIENT_SECRET##"  /* TODO: Installed Package Client Secret eintragen */
+          "client_secret": "pumpepr1oxmwtowcNxXqISB7"
         });
         var tokenResp = sfmcAuthReq.send();
 
         if (200 == tokenResp.statusCode) {
-          var accessToken = ParseJSON(String(tokenResp.content)).access_token;
+          var accessToken = Platform.Function.ParseJSON(String(tokenResp.content)).access_token;
 
-          /* ── Schritt 2: Asset in Content Builder hochladen ────── */
+          /* ── Schritt 2: Asset Upload ────── */
           var assetName = "oto_" + Platform.Function.GUID() + ".jpg";
 
           var uploadReq = new Script.Util.HttpRequest("https://mcpwtx3tq0h63306gmq1cz4r728q.rest.marketingcloudapis.com/asset/v1/content/assets");
@@ -98,21 +93,18 @@
           var uploadResp = uploadReq.send();
 
           if (201 == uploadResp.statusCode || 200 == uploadResp.statusCode) {
-            var assetData = ParseJSON(String(uploadResp.content));
+            var assetData = Platform.Function.ParseJSON(String(uploadResp.content));
             imageUrl = assetData.fileURL || assetData.thumbnailURL || "";
             Write("<!-- Asset uploaded: " + assetName + " -->");
           } else {
             Write("<!-- Asset upload failed: HTTP " + uploadResp.statusCode + " -->");
           }
         } else {
-          Write("<!-- SFMC auth failed: HTTP " + tokenResp.statusCode + " -->");
+          Write("<!-- Auth failed: HTTP " + tokenResp.statusCode + " -->");
         }
       }
 
-      /* OTO-ID und Bild-URL für den Slot bereitstellen */
       Variable.SetValue("@imageUrl", imageUrl);
-      /* @otoId ist bereits via AMPscript RequestParameter("otoid") gesetzt */
-
   </script>
 
   <div data-type="slot" data-key="slotphotocheck" data-max-blocks="1" data-label="otoId Check"></div>
@@ -120,11 +112,9 @@
   <script language="javascript" runat="server">
 
     /* ══════════════════════════════════════════════════════════════
-       BRANCH B: OneClick-Journey (init / accept / undo)
+       BRANCH B: OneClick-Journey
     ══════════════════════════════════════════════════════════════ */
     } else {
-
-      /* ── Logging ─────────────────────────────────────────────── */
       var logData = {
         products: products,
         action:   action,
@@ -135,7 +125,6 @@
       };
       logOneClick(logData, false);
 
-      /* ── Request-Objekt aufbauen ─────────────────────────────── */
       var reqconfig = {
         id:             cicId,
         campaign:       products,
@@ -152,11 +141,9 @@
         reqconfig.signature.path = "/copper_phout_2603";
       }
 
-      /* OTO-ID an OneClick übergeben (action=accept; Feldname mit OneClick-Team abklären) */
       var otoId = Variable.GetValue("@otoId");
       if (otoId) reqconfig.oto_id = otoId;
 
-      /* ── API-Call ────────────────────────────────────────────── */
       var authobj = {
         client_id:     ocEnv.client_id,
         client_secret: ocEnv.client_secret
@@ -180,7 +167,6 @@
       var ocData   = responseContent.data;
       var ocStatus = responseContent.status;
 
-      /* ── OC0001: Kundendaten vorhanden → Upload-Formular zeigen ─ */
       if ("OC0001" == ocStatus.code) {
         Variable.SetValue("@ALL_DATA", String(resp.content));
         if (isNotNullOrEmpty(ocData)) {
@@ -190,14 +176,13 @@
           if (isNotNullOrEmpty(ocData.language_code))     Variable.SetValue("@language_code",     ocData.language_code);
           if (isNotNullOrEmpty(ocData.valid_until))       Variable.SetValue("@valid_until",       ocData.valid_until);
         }
-
   </script>
 
   <div data-type="slot" data-key="slotsuccess" data-max-blocks="1" data-label="OTO-ID Upload"></div>
 
   <script language="javascript" runat="server">
 
-      /* ── OC0007: Angebot akzeptiert → Abschluss-Seite ─────────── */
+      /* ── OC0007: Accepted ─────────── */
       } else if ("OC0007" == ocStatus.code) {
         Variable.SetValue("@ALL_DATA", String(resp.content));
         if (isNotNullOrEmpty(ocData) && isNotNullOrEmpty(ocData.new_product)) {
@@ -210,7 +195,7 @@
 
   <script language="javascript" runat="server">
 
-      /* ── OC0003: Angebot abgelaufen ──────────────────────────── */
+      /* ── OC0003: Expired ──────────────────────────── */
       } else if ("OC0003" == ocStatus.code) {
 
   </script>
@@ -219,7 +204,7 @@
 
   <script language="javascript" runat="server">
 
-      /* ── OC0004: Zu spät zum Widerrufen ─────────────────────── */
+      /* ── OC0004: Too Late ─────────────────────── */
       } else if ("OC0004" == ocStatus.code) {
 
   </script>
@@ -228,7 +213,7 @@
 
   <script language="javascript" runat="server">
 
-      /* ── OC0005: Angebot bereits geschlossen ─────────────────── */
+      /* ── OC0005: Closed ─────────────────── */
       } else if ("OC0005" == ocStatus.code) {
 
   </script>
@@ -237,7 +222,7 @@
 
   <script language="javascript" runat="server">
 
-      /* ── OC0006: Undo erfolgreich ────────────────────────────── */
+      /* ── OC0006: Undo Successful ────────────────────────────── */
       } else if ("OC0006" == ocStatus.code) {
 
   </script>
@@ -246,7 +231,6 @@
 
   <script language="javascript" runat="server">
 
-      /* ── Alle anderen OC-Codes ───────────────────────────────── */
       } else {
         throw "Unknown OneClick status: " + ocStatus.code;
       }
