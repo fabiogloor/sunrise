@@ -89,7 +89,7 @@
           uploadReq.setHeader("Authorization", "Bearer " + accessToken);
           uploadReq.postData = Stringify({
             "name":      assetName,
-            "assetType": { "name": "jpg" },
+            "assetType": { "id": 20, "name": "jpg" },
             "file":      imagedata,
             "category":  { "id": 38758 }
           });
