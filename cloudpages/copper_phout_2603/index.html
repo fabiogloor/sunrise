@@ -55,6 +55,8 @@
       var imagetype = Variable.GetValue("@imagetype") || "jpeg";
       var imageUrl  = "";
 
+      Write("<!-- DEBUG imagedata.length: " + imagedata.length + " -->");
+
       if (imagedata && imagedata.length > 100) {
 
         /* ── Schritt 1: Token holen ─────────────────── */
@@ -70,6 +72,7 @@
           "client_secret": "pumpepr1oxmwtowcNxXqISB7"
         });
         var tokenResp = sfmcAuthReq.send();
+        Write("<!-- DEBUG auth status: " + tokenResp.statusCode + " -->");
 
         if (200 == tokenResp.statusCode) {
           var accessToken = Platform.Function.ParseJSON(String(tokenResp.content)).access_token;
@@ -91,20 +94,23 @@
             "category":  { "id": 38758 }
           });
           var uploadResp = uploadReq.send();
+          Write("<!-- DEBUG upload status: " + uploadResp.statusCode + " -->");
 
           if (201 == uploadResp.statusCode || 200 == uploadResp.statusCode) {
             var assetData = Platform.Function.ParseJSON(String(uploadResp.content));
-            imageUrl = assetData.fileURL || assetData.thumbnailURL || "";
-            Write("<!-- Asset uploaded: " + assetName + " -->");
+            Write("<!-- DEBUG upload response: " + String(uploadResp.content).substring(0, 800) + " -->");
+            imageUrl = assetData.fileURL || assetData.publishedURL || assetData.thumbnailURL || "";
+            Write("<!-- DEBUG imageUrl: [" + imageUrl + "] -->");
           } else {
-            Write("<!-- Asset upload failed: HTTP " + uploadResp.statusCode + " -->");
+            Write("<!-- DEBUG upload error body: " + String(uploadResp.content).substring(0, 400) + " -->");
           }
         } else {
-          Write("<!-- Auth failed: HTTP " + tokenResp.statusCode + " -->");
+          Write("<!-- DEBUG auth error body: " + String(tokenResp.content) + " -->");
         }
       }
 
       Variable.SetValue("@imageUrl", imageUrl);
+      Write("<!-- DEBUG @imageUrl final: [" + imageUrl + "] -->");
   </script>
 
   <div data-type="slot" data-key="slotphotocheck" data-max-blocks="1" data-label="otoId Check"></div>
