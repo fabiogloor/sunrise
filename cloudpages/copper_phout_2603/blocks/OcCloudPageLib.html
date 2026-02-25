@@ -1,0 +1,60 @@
+<script language="javascript" runat="server">
+  Platform.Load("Core","1");
+
+  /* ═══════════════════════════════════════════════════════════════════
+     ONECLICK ENVIRONMENT CONFIG
+     Beide Umgebungen sind hier global definiert.
+     Den ENV-Schalter ("TEST" | "PROD") setzt jedes index.html selbst.
+  ═══════════════════════════════════════════════════════════════════ */
+  var _OC_CONFIG = {
+    TEST: {
+      client_id:     "a5deff7c680c4b96b2eee4a6e2e58df0",
+      client_secret: "746D3a6A1e994B9490834a91119cbC4D",
+      url:           "https://sunrise-campaign-eapi-v1-t04-z8mtul.djk77v.deu-c1.eu1.cloudhub.io/api/accounts/campaign-info"
+    },
+    PROD: {
+      client_id:     "e5af6085e2e642eda419fd628f4324ec",
+      client_secret: "76425c167C104258a128231F792E9c0B",
+      url:           "https://sunrise-campaign-eapi-v1-80a220.crmd22.deu-c1.eu1.cloudhub.io/api/accounts/campaign-info"
+    }
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
+     UTILITY FUNCTIONS
+  ═══════════════════════════════════════════════════════════════════ */
+
+  /**
+   * Prüft ob ein Wert nicht null, undefined, leer oder "null" ist.
+   */
+  function isNotNullOrEmpty(value) {
+    return value !== null &&
+           value !== undefined &&
+           value !== "" &&
+           (typeof value !== "string" || value.toLowerCase() !== "null");
+  }
+
+  /**
+   * Schreibt einen Log-Eintrag in die OneClick-Log DataExtension.
+   * @param {Object}  logData - Objekt mit den zu loggenden Daten.
+   * @param {Boolean} debug   - Wenn true, wird eine Debug-Ausgabe geschrieben.
+   */
+  function logOneClick(logData, debug) {
+    var logDE_Name = "ent.922_ONECLICKLOG";
+    try {
+      var logDE     = DataExtension.Init(logDE_Name);
+      var addStatus = logDE.Rows.Add({
+        "cicId":          logData.cicId,
+        "siteId":         logData.siteId,
+        "action":         logData.action,
+        "products":       logData.products,
+        "additionalInfo": Stringify(logData)
+      });
+      if (debug) {
+        Write("Log: " + Stringify(logData) + " → Status: " + addStatus + "<br>");
+      }
+    } catch(e) {
+      Write("Fehler beim Speichern des Logs: " + Stringify(e) + "<br>");
+    }
+  }
+
+</script>

@@ -887,14 +887,13 @@
       </script>
     <!-- Form-OTO Input -->
   
-    <script id="baseScript">
+    <script>
         var acc = document.getElementsByClassName("faq-item");
         var i;
 
         for (i = 0; i < acc.length; i++) {
         acc[i].addEventListener("click", function() {
             this.classList.toggle("active");
-            var inneraccordion = this.nextElementSibling;
             var icon = this.querySelector(".icon");
             var panel = this.querySelector(".panel");
 

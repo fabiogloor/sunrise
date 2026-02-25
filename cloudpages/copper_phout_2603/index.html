@@ -1,4 +1,4 @@
-%%=ContentBlockByKey("UsefulLib")=%%
+%%=ContentBlockByKey("OcCloudPageLib")=%%
 <!DOCTYPE html>
 <html lang="de">
  <head>
@@ -9,9 +9,9 @@
 
    <div data-type="slot" data-key="navbar" data-label="Header Area" data-max-blocks="1" data-allowed-blocks="htmlblock; layoutblock"></div>
 
-  <%-- ═══════════════════════════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════════════════════════
        AMPscript: URL- / POST-Parameter einlesen
-  ═══════════════════════════════════════════════════════════════════ --%>
+  ═══════════════════════════════════════════════════════════════════ -->
   <script runat="server" language="ampscript">
    SET @action    = RequestParameter("action")
    IF Empty(@action) THEN
@@ -27,12 +27,16 @@
    SET @imagetype = RequestParameter("imagetype")
   </script>
 
-  <%-- ═══════════════════════════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════════════════════════
        SSJS: Haupt-Logik
-  ═══════════════════════════════════════════════════════════════════ --%>
+  ═══════════════════════════════════════════════════════════════════ -->
   <script language="javascript" runat="server">
    try {
     Write("<!-- START of journey -->");
+
+    /* ── Umgebung wählen: "TEST" | "PROD" ───────────────────────── */
+    var ENV   = "PROD";
+    var ocEnv = _OC_CONFIG[ENV];
 
     /* ── Pflichtparameter prüfen ─────────────────────────────────── */
     var cicId = Variable.GetValue("@cicId");
@@ -41,7 +45,6 @@
 
     var products = Variable.GetValue("@products");
     if (!products) products = "copper_phout_2603";
-    if (!products) throw "No Products-Parameter";
 
     var action = Variable.GetValue("@action");
 
@@ -155,11 +158,11 @@
 
       /* ── API-Call ────────────────────────────────────────────── */
       var authobj = {
-        client_id:     "e5af6085e2e642eda419fd628f4324ec",
-        client_secret: "76425c167C104258a128231F792E9c0B"
+        client_id:     ocEnv.client_id,
+        client_secret: ocEnv.client_secret
       };
 
-      var url = "https://sunrise-campaign-eapi-v1-80a220.crmd22.deu-c1.eu1.cloudhub.io/api/accounts/campaign-info";
+      var url = ocEnv.url;
       var req = new Script.Util.HttpRequest(url);
       req.postData             = Stringify(reqconfig);
       req.emptyContentHandling = 0;
