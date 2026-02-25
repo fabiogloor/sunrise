@@ -88,10 +88,11 @@
           uploadReq.continueOnError     = true;
           uploadReq.setHeader("Authorization", "Bearer " + accessToken);
           uploadReq.postData = Stringify({
-            "name":      assetName,
-            "assetType": { "id": 20, "name": "jpg" },
-            "file":      imagedata,
-            "category":  { "id": 38758 }
+            "name":           assetName,
+            "assetType":      { "id": 20, "name": "jpg" },
+            "file":           imagedata,
+            "fileProperties": { "fileName": assetName },
+            "category":       { "id": 38758 }
           });
           var uploadResp = uploadReq.send();
           Write("<!-- DEBUG upload status: " + uploadResp.statusCode + " -->");
