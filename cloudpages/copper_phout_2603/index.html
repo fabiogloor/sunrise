@@ -77,6 +77,15 @@
         if (200 == tokenResp.statusCode) {
           var accessToken = Platform.Function.ParseJSON(String(tokenResp.content)).access_token;
 
+          /* ── DEBUG: Asset-Types abfragen (einmalig, danach entfernen) ── */
+          var typesReq = new Script.Util.HttpRequest("https://mcpwtx3tq0h63306gmq1cz4r728q.rest.marketingcloudapis.com/asset/v1/content/asset/types");
+          typesReq.method              = "GET";
+          typesReq.emptyContentHandling = 0;
+          typesReq.continueOnError     = true;
+          typesReq.setHeader("Authorization", "Bearer " + accessToken);
+          var typesResp = typesReq.send();
+          Write("<!-- DEBUG asset types: " + String(typesResp.content).substring(0, 2000) + " -->");
+
           /* ── Schritt 2: Asset Upload ────── */
           var assetName = "oto_" + Platform.Function.GUID() + ".jpg";
 
