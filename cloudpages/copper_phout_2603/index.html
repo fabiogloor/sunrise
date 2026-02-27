@@ -100,7 +100,8 @@
           if (201 == uploadResp.statusCode || 200 == uploadResp.statusCode) {
             var assetData = Platform.Function.ParseJSON(String(uploadResp.content));
             Write("<!-- DEBUG upload response: " + String(uploadResp.content).substring(0, 800) + " -->");
-            imageUrl = assetData.fileURL || assetData.publishedURL || assetData.thumbnailURL || "";
+            imageUrl = (assetData.fileProperties && assetData.fileProperties.publishedURL)
+                    || assetData.fileURL || assetData.publishedURL || "";
             Write("<!-- DEBUG imageUrl: [" + imageUrl + "] -->");
           } else {
             Write("<!-- DEBUG upload error body: " + String(uploadResp.content).substring(0, 400) + " -->");
