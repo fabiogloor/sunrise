@@ -769,7 +769,7 @@
             dz.addEventListener("dragenter", function(e) { e.preventDefault(); dz.classList.add("drag-over"); });
             dz.addEventListener("dragover",  function(e) { e.preventDefault(); dz.classList.add("drag-over"); });
             dz.addEventListener("dragleave", function()  { dz.classList.remove("drag-over"); });
-            dz.addEventListener("drop",      function()  { dz.classList.remove("drag-over"); });
+            dz.addEventListener("drop",      function(e) { e.preventDefault(); dz.classList.remove("drag-over"); });
           }
       
           // select file -> validate -> preview
