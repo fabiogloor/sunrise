@@ -4,6 +4,140 @@
  <head>
   %%=TreatAsContent(ContentBlockByKey("OcHeadInclude"))=%%
   <title>Ihr neues Angebot</title>
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       Shared Styles – gelten für alle Slots
+    ═══════════════════════════════════════════════════════════ */
+
+    /* ── Progress-Stepper ───────────────────────────────────── */
+    .oc-stepper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 1rem 0;
+        max-width: 420px;
+        margin: 0 auto;
+    }
+    .oc-step {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #aaa;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    .oc-step.is-active { color: #E2002A; font-weight: 600; }
+    .oc-step.is-done   { color: #2E7D52; }
+    .oc-step-dot {
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 700;
+        flex-shrink: 0;
+    }
+    .oc-step.is-active .oc-step-dot {
+        border-color: #E2002A; background: #E2002A; color: #fff;
+    }
+    .oc-step.is-done .oc-step-dot {
+        border-color: #2E7D52; background: #2E7D52; color: #fff;
+    }
+    .oc-step-line {
+        flex: 1; height: 2px; background: #ddd;
+        min-width: 24px; margin: 0 6px;
+    }
+    .oc-step.is-done + .oc-step-line { background: #2E7D52; }
+    @media (max-width: 380px) {
+        .oc-step-label { display: none; }
+        .oc-stepper { max-width: 200px; }
+    }
+
+    /* ── Shared Header-Section ──────────────────────────────── */
+    .img-responsive {
+        width: 100%;
+        height: 459px;
+        background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_mb_v2.png');
+        background-color: #00101D;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        object-fit: cover;
+        color: var(--white);
+        padding: 1rem;
+    }
+    .header-container-inner .text-container {
+        margin: 2rem 0;
+        justify-content: center;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    @media (min-width: 600px) {
+        .img-responsive {
+            display: flex;
+            background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_Large_v2.png');
+            color: var(--greyBackground);
+        }
+        .header-container-inner {
+            width: 60%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .header-container .text-container {
+            width: 70%;
+            text-align: left;
+            padding-left: 0;
+        }
+    }
+    @media (min-width: 768px) {
+        .header-cover { flex-direction: row; }
+        .img-responsive {
+            background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_Desktop_v2.png');
+        }
+    }
+
+    /* ── AI-Feedback Banner ─────────────────────────────────── */
+    .oc-ai-banner {
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 12px; border-radius: 8px;
+        font-size: 13px; font-weight: 600;
+    }
+    .oc-ai-banner--success {
+        background: #EBF7EE; border: 1px solid #A0D9B0; color: #2E7D52;
+    }
+    .oc-ai-banner--warning {
+        background: #FFF7E6; border: 1px solid #F0C050; color: #B86E00;
+    }
+
+    /* ── Smooth Accordion ───────────────────────────────────── */
+    .inneraccordion {
+        display: block !important;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-out, opacity 0.3s ease;
+        opacity: 0;
+        text-align: left;
+    }
+    .faq-item.active .inneraccordion {
+        max-height: 800px;
+        opacity: 1;
+    }
+    .faq-item .icon {
+        transition: transform 0.3s ease;
+    }
+    .faq-item.active .icon {
+        transform: rotate(180deg);
+    }
+
+    /* ── Dropzone Drag-over State ───────────────────────────── */
+    .dropzone-section.drag-over {
+        border-color: #E2002A;
+        background-color: rgba(226, 0, 42, 0.05);
+    }
+  </style>
  </head>
  <body>
 
@@ -24,7 +158,7 @@
    SET @products  = RequestParameter("products")
    SET @otoId     = RequestParameter("otoid")
    SET @imagedata = RequestParameter("imagedata")
-   SET @imagetype = RequestParameter("imagetype")
+   SET @imageUrl  = RequestParameter("imageUrl")
   </script>
 
   <!-- ═══════════════════════════════════════════════════════════════════
@@ -32,7 +166,6 @@
   ═══════════════════════════════════════════════════════════════════ -->
   <script language="javascript" runat="server">
    try {
-    Write("<!-- START of journey -->");
     var ENV   = "TEST";
     var ocEnv = _OC_CONFIG[ENV];
 
@@ -40,26 +173,40 @@
     var cicId = Variable.GetValue("@cicId");
     if (!cicId) cicId = Variable.GetValue("@siteId");
     if (!cicId) throw "No cicId-Parameter";
+    /* Sicherstellen, dass @cicId in AMPscript immer befüllt ist –
+       auch wenn der Kunde mit ?siteId=... statt ?cicId=... kam.
+       Ohne dies wären %%=v(@cicId)=%% in Slots leer.          */
+    Variable.SetValue("@cicId", cicId);
 
     var products = Variable.GetValue("@products");
     if (!products) products = "copper_phout_2603";
+    Variable.SetValue("@products", products);
 
     var action = Variable.GetValue("@action");
 
     /* ══════════════════════════════════════════════════════════════
-       BRANCH A: action=photocheck
-       → Bild (Base64) via SFMC Asset API hochladen und URL holen
-    ══════════════════════════════════════════════════════════════ */
+       BRANCH A: action=photocheck – Zwei-Phasen-Architektur
+       ──────────────────────────────────────────────────────────
+       Phase 1 (imagedata vorhanden):
+         Bild via SFMC Asset API hochladen → publishedURL sichern
+         → @ocPhase = "loading" → slotphotocheck zeigt Spinner
+         → Client-seitiger 30s-Countdown submits Phase 2
+
+       Phase 2 (imageUrl im POST, kein imagedata):
+         CDN hat propagiert → Qolaba mit imageUrl aufrufen
+         → @otoId setzen → @ocPhase = "confirm"
+         → slotphotocheck zeigt Bestätigungsformular
+       ══════════════════════════════════════════════════════════ */
     if (action === "photocheck") {
       var imagedata = Variable.GetValue("@imagedata");
-      var imagetype = Variable.GetValue("@imagetype") || "jpeg";
-      var imageUrl  = "";
+      /* imageUrl aus AMPscript: entweder leer (Phase 1) oder
+         vom Client zurückgeposteter Wert (Phase 2)            */
+      var imageUrl  = Variable.GetValue("@imageUrl") || "";
 
-      Write("<!-- DEBUG imagedata.length: " + imagedata.length + " -->");
-
+      /* ── PHASE 1: Bild hochladen ─────────────────────────── */
       if (imagedata && imagedata.length > 100) {
 
-        /* ── Schritt 1: Token holen ─────────────────── */
+        /* Schritt 1: OAuth-Token holen */
         var sfmcAuthReq = new Script.Util.HttpRequest("https://mcpwtx3tq0h63306gmq1cz4r728q.auth.marketingcloudapis.com/v2/token");
         sfmcAuthReq.method              = "POST";
         sfmcAuthReq.contentType         = "application/json";
@@ -72,47 +219,114 @@
           "client_secret": "pumpepr1oxmwtowcNxXqISB7"
         });
         var tokenResp = sfmcAuthReq.send();
-        Write("<!-- DEBUG auth status: " + tokenResp.statusCode + " -->");
 
-        if (200 == tokenResp.statusCode) {
-          var accessToken = Platform.Function.ParseJSON(String(tokenResp.content)).access_token;
-
-          /* ── Schritt 2: Asset Upload ────── */
-          var assetName = "oto_" + Platform.Function.GUID() + ".jpg";
-
-          var uploadReq = new Script.Util.HttpRequest("https://mcpwtx3tq0h63306gmq1cz4r728q.rest.marketingcloudapis.com/asset/v1/content/assets");
-          uploadReq.method              = "POST";
-          uploadReq.contentType         = "application/json";
-          uploadReq.emptyContentHandling = 0;
-          uploadReq.retries             = 2;
-          uploadReq.continueOnError     = true;
-          uploadReq.setHeader("Authorization", "Bearer " + accessToken);
-          uploadReq.postData = Stringify({
-            "name":           assetName,
-            "assetType":      { "id": 22, "name": "jpg" },
-            "file":           imagedata,
-            "fileProperties": { "fileName": assetName },
-            "category":       { "id": 38758 }
-          });
-          var uploadResp = uploadReq.send();
-          Write("<!-- DEBUG upload status: " + uploadResp.statusCode + " -->");
-
-          if (201 == uploadResp.statusCode || 200 == uploadResp.statusCode) {
-            var assetData = Platform.Function.ParseJSON(String(uploadResp.content));
-            Write("<!-- DEBUG upload response: " + String(uploadResp.content).substring(0, 800) + " -->");
-            imageUrl = (assetData.fileProperties && assetData.fileProperties.publishedURL)
-                    || assetData.fileURL || assetData.publishedURL || "";
-            Write("<!-- DEBUG imageUrl: [" + imageUrl + "] -->");
-          } else {
-            Write("<!-- DEBUG upload error body: " + String(uploadResp.content).substring(0, 400) + " -->");
-          }
-        } else {
-          Write("<!-- DEBUG auth error body: " + String(tokenResp.content) + " -->");
+        if (200 != tokenResp.statusCode) {
+          throw "SFMC Auth failed (HTTP " + tokenResp.statusCode + ")";
         }
-      }
 
-      Variable.SetValue("@imageUrl", imageUrl);
-      Write("<!-- DEBUG @imageUrl final: [" + imageUrl + "] -->");
+        var accessToken = Platform.Function.ParseJSON(String(tokenResp.content)).access_token;
+
+        /* Schritt 2: Asset in Content Builder hochladen */
+        var assetName = "oto_" + Platform.Function.GUID() + ".jpg";
+
+        var uploadReq = new Script.Util.HttpRequest("https://mcpwtx3tq0h63306gmq1cz4r728q.rest.marketingcloudapis.com/asset/v1/content/assets");
+        uploadReq.method              = "POST";
+        uploadReq.contentType         = "application/json";
+        uploadReq.emptyContentHandling = 0;
+        uploadReq.retries             = 2;
+        uploadReq.continueOnError     = true;
+        uploadReq.setHeader("Authorization", "Bearer " + accessToken);
+        uploadReq.postData = Stringify({
+          "name":           assetName,
+          "assetType":      { "id": 20, "name": "jpg" },
+          "file":           imagedata,
+          "fileProperties": { "fileName": assetName },
+          "category":       { "id": 38758 }
+        });
+        var uploadResp = uploadReq.send();
+
+        if (201 == uploadResp.statusCode || 200 == uploadResp.statusCode) {
+          var assetData = Platform.Function.ParseJSON(String(uploadResp.content));
+          imageUrl = (assetData.fileProperties && assetData.fileProperties.publishedURL)
+                  || assetData.fileURL || assetData.publishedURL || "";
+        }
+
+        if (!imageUrl) {
+          throw "Asset-Upload fehlgeschlagen (HTTP " + uploadResp.statusCode + ")";
+        }
+
+        /*
+         * Kein Qolaba-Call hier! Der SFMC-CDN benötigt ~30s für
+         * die Propagation. Ein sofortiger Aufruf der publishedURL
+         * (HEAD oder GET) cached die 404-Antwort exponentiell
+         * (1 min → 2 min → ...) und blockiert Qolaba dauerhaft.
+         *
+         * Lösung: Client zeigt 30s-Countdown, danach POST Phase 2.
+         */
+        Variable.SetValue("@imageUrl",  imageUrl);
+        Variable.SetValue("@ocPhase",   "loading");
+
+      /* ── PHASE 2: CDN propagiert, Qolaba aufrufen ─────────── */
+      } else if (imageUrl) {
+
+        var qolabaKey = ocEnv.qolaba_key || "";
+        if (qolabaKey) {
+          var qolabaReq = new Script.Util.HttpRequest("https://qolaba-server-b2b.up.railway.app/api/v1/studio/chat");
+          qolabaReq.method               = "POST";
+          qolabaReq.contentType          = "application/json";
+          qolabaReq.emptyContentHandling = 0;
+          qolabaReq.retries              = 1;
+          qolabaReq.continueOnError      = true;
+          qolabaReq.setHeader("Authorization", "Bearer " + qolabaKey);
+          qolabaReq.postData = Stringify({
+            "llm":           "GeminiAI",
+            "llm_model":     "gemini-2.5-flash",
+            "image_analyze": true,
+            "system_msg":    "Du bist ein pr\u00e4ziser OCR-Assistent.",
+            "history": [{
+              "role": "user",
+              "content": {
+                "text": "Extrahiere die OTO-ID (z.B. B.112.321.834.X). Antworte nur mit der ID.",
+                "image_data": [{ "url": imageUrl, "details": "low" }]
+              }
+            }],
+            "tools": { "tool_list": { "image_generation": false, "internet_search": false } }
+          });
+
+          var qolabaResp = qolabaReq.send();
+
+          if (200 == qolabaResp.statusCode) {
+            var qolabaData = Platform.Function.ParseJSON(String(qolabaResp.content));
+
+            /* Qolaba gibt je nach LLM unterschiedliche Strukturen zurück:
+               GeminiAI:  { output: "B.112.321.834.X" }            (String)
+               ClaudeAI:  { output: { text: "B.112.321.834.X" } }  (Objekt)
+               Sicher extrahieren, egal welches Format:                      */
+            var rawOutput = qolabaData.output;
+            var aiOutput  = "";
+            if (typeof rawOutput === "string") {
+              aiOutput = rawOutput;
+            } else if (rawOutput && typeof rawOutput === "object") {
+              aiOutput = String(rawOutput.text || rawOutput.content || rawOutput.message || "");
+            }
+            aiOutput = aiOutput.replace(/^\s+|\s+$/g, ""); /* trim polyfill für SSJS */
+
+            /*
+             * Validierung: Länge 13–20 Zeichen + Präfix A./B./O./WP.
+             * Beispiele: A.123.456.789 (13 Z.), B.112.321.834.2 (15 Z.)
+             */
+            if (aiOutput.length >= 13 && aiOutput.length <= 20) {
+              var pfx2 = aiOutput.substring(0, 2).toUpperCase();
+              var pfx3 = aiOutput.substring(0, 3).toUpperCase();
+              if (pfx2 == "A." || pfx2 == "B." || pfx2 == "O." || pfx3 == "WP.") {
+                Variable.SetValue("@otoId", aiOutput);
+              }
+            }
+          }
+        }
+
+        Variable.SetValue("@ocPhase", "confirm");
+      }
   </script>
 
   <div data-type="slot" data-key="slotphotocheck" data-max-blocks="1" data-label="otoId Check"></div>
@@ -244,8 +458,6 @@
       }
 
     } /* END Branch B */
-
-    Write("<!-- END of journey -->");
 
    } catch(err) {
 

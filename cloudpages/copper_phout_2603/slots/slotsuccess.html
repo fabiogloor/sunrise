@@ -3,60 +3,7 @@
         body {
             background: var(--bs-gray-100);
         }
-       /****** HeaderSection ******/
-       .img-responsive {
-            width: 100%;
-            height: 459px;
-            background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_mb_v2.png'); 
-            background-color: #00101D; /* For browsers that do not support gradients */
-            -webkit-image-set: background-image;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: cover;
-            object-fit: cover;
-            color: var(--white);
-            padding: 1rem;
-        }
-        .header-container-inner .text-container {
-            margin: 2rem 0;
-            justify-content: center;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        /* S-Large devices (large desktops, 600px and up) */
-        @media (min-width: 600px) { 
-            .img-responsive{
-                display: flex;
-                /*height: 359px;*/
-                background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_Large_v2.png');
-                color: var(--greyBackground);
-            }
-            .header-container-inner {
-                width: 60%;
-                display: flex;
-                flex-direction: row;
-                align-items: center
-            }
-            .header-container .text-container {
-                width: 70%;
-                text-align: left;
-                padding-left: 0;
-            }
-        }
-
-        /* Medium devices (tablets, 768px and up) */
-        @media (min-width: 768px) { 
-            .header-cover {
-                flex-direction: row;
-            }
-            .img-responsive{
-                /*height: 439px;*/
-                background-image: url('https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/KV_Copper_Phaseout_Desktop_v2.png');
-            }
-         }
-       /****** HeaderSection ******/
+        /* HeaderSection → siehe index.html (shared styles) */
     
 
         /******* Offer Secrion *******/
@@ -247,7 +194,7 @@
 
 
         /****** Accordion-FAQ Section ******/
-        button {
+        .faq-item button {
             position: relative;
             display: block;
             text-align: left;
@@ -264,20 +211,11 @@
             padding: 1.5rem 0;
             transition: 0.4s;
         }
-        .active {
-            transition: 0.4s;
-        }
         .accordion-faq:hover {
-            font-weight: 700; 
+            font-weight: 700;
             color: var(--sunriseRed);
-            /* border-bottom: .5px solid var(--sunriseRed); */
         }
-        .inneraccordion {
-            display: none;
-            overflow: hidden;
-            animation: anim-ShowUp 2s forwards ease-in-out;
-            text-align: left;
-        }
+        /* .inneraccordion → siehe index.html (shared styles: smooth transition) */
         .accordion-item-img {
             display: flex;
             flex-direction: column;
@@ -337,7 +275,7 @@
         }
     }
     /* Large devices (desktops, 992px and up) */
-    @media (min-width: 992px) { 
+    @media (min-width: 992px) {
         .l-center-l{
             max-width: var(--bs-breakpoint-lg);
         }
@@ -348,6 +286,42 @@
             flex-direction: row;
         }
     }
+
+    /****** Lade-Overlay (während SSJS-Verarbeitung: Auth → Upload → Qolaba AI) ******/
+    #ocLoadingOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 16, 29, 0.80);
+        z-index: 99999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+    #ocLoadingOverlay.is-visible {
+        display: flex;
+    }
+    .oc-spinner {
+        width: 52px;
+        height: 52px;
+        border: 4px solid rgba(255, 255, 255, 0.25);
+        border-top-color: #E2002A;
+        border-radius: 50%;
+        animation: oc-spin 0.75s linear infinite;
+    }
+    @keyframes oc-spin {
+        to { transform: rotate(360deg); }
+    }
+    .oc-loading-text {
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+        text-align: center;
+        padding: 0 2rem;
+        line-height: 1.5;
+    }
+    /****** Lade-Overlay ******/
     </style>
 
     <!-- Header START -->
@@ -365,6 +339,15 @@
         </div>
     </div>
     <!-- Header End -->
+
+    <!-- Progress-Stepper -->
+    <div class="oc-stepper">
+        <div class="oc-step is-active"><span class="oc-step-dot">1</span> <span class="oc-step-label">Upload</span></div>
+        <div class="oc-step-line"></div>
+        <div class="oc-step"><span class="oc-step-dot">2</span> <span class="oc-step-label">Pr&uuml;fung</span></div>
+        <div class="oc-step-line"></div>
+        <div class="oc-step"><span class="oc-step-dot">3</span> <span class="oc-step-label">Erledigt</span></div>
+    </div>
 
     <div class="m-section"></div>
 
@@ -731,6 +714,15 @@
         jQuery(document).ready(function ($) {
           // initial state
           setDropPreview(null);
+
+          // ── Drag-over visual feedback ──
+          var dz = document.getElementById("dropzone");
+          if (dz) {
+            dz.addEventListener("dragenter", function(e) { e.preventDefault(); dz.classList.add("drag-over"); });
+            dz.addEventListener("dragover",  function(e) { e.preventDefault(); dz.classList.add("drag-over"); });
+            dz.addEventListener("dragleave", function()  { dz.classList.remove("drag-over"); });
+            dz.addEventListener("drop",      function()  { dz.classList.remove("drag-over"); });
+          }
       
           // select file -> validate -> preview
           $("#fileInput").on("change", function () {
@@ -824,7 +816,9 @@
         // ---------- Bild komprimieren + als Base64 auslesen ----------
         function compressAndReadBase64(file, callback) {
           const MAX_PX  = 1500;   // maximale Kantenlänge in px
-          const QUALITY = 0.85;   // JPEG-Qualität
+          // 0.92 statt 0.85: weniger JPEG-Blockartefakte an Textkanten →
+          // bessere Lesbarkeit der OTO-ID-Ziffern für Qolaba-AI-OCR
+          const QUALITY = 0.92;
 
           const reader = new FileReader();
           reader.onload = function(e) {
@@ -865,6 +859,9 @@
           if (file) {
             // Async-Pfad: Bild komprimieren, dann absenden
             compressAndReadBase64(file, function(base64) {
+              // Lade-Overlay einblenden – SSJS benötigt ~3–8 s (Auth + Upload + Qolaba AI)
+              var overlay = document.getElementById("ocLoadingOverlay");
+              if (overlay) overlay.classList.add("is-visible");
               submitToPhotocheck(btn, {
                 otoid:     otoValue || "",
                 imagedata: base64,
@@ -886,25 +883,22 @@
         });
       </script>
     <!-- Form-OTO Input -->
+
+    <!-- Lade-Overlay: sichtbar während SSJS-Verarbeitung (Auth → Upload → Qolaba AI ~3–8s) -->
+    <div id="ocLoadingOverlay" role="status" aria-live="polite" aria-label="Wird verarbeitet">
+        <div class="oc-spinner"></div>
+        <p class="oc-loading-text">OTO-ID wird analysiert&hellip;<br>
+            <span style="font-weight:400; font-size:13px; opacity:0.85;">Dies kann einige Sekunden dauern.</span>
+        </p>
+    </div>
   
     <script>
-        var acc = document.getElementsByClassName("faq-item");
-        var i;
-
-        for (i = 0; i < acc.length; i++) {
-        acc[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var icon = this.querySelector(".icon");
-            var panel = this.querySelector(".panel");
-
-            if (panel.style.display === "block") {
-            panel.style.display = "none";
-            icon.src = "https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-chevron-down.png";
-            } else {
-            panel.style.display = "block";
-            icon.src = "https://image.info.sunrise.ch/lib/fe25117373640478731d78/m/1/ig-chevron-up.png";
-            }
-        });
+        /* Smooth Accordion – toggle via CSS max-height + icon rotation */
+        var faqItems = document.getElementsByClassName("faq-item");
+        for (var i = 0; i < faqItems.length; i++) {
+            faqItems[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+            });
         }
     </script>
 </main>
