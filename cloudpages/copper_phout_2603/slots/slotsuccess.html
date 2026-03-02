@@ -763,13 +763,22 @@
           // initial state
           setDropPreview(null);
 
-          // ── Drag-over visual feedback ──
+          // ── Drag-over visual feedback + file hand-off ──
           var dz = document.getElementById("dropzone");
           if (dz) {
             dz.addEventListener("dragenter", function(e) { e.preventDefault(); dz.classList.add("drag-over"); });
             dz.addEventListener("dragover",  function(e) { e.preventDefault(); dz.classList.add("drag-over"); });
             dz.addEventListener("dragleave", function()  { dz.classList.remove("drag-over"); });
-            dz.addEventListener("drop",      function(e) { e.preventDefault(); dz.classList.remove("drag-over"); });
+            dz.addEventListener("drop", function(e) {
+              e.preventDefault();
+              dz.classList.remove("drag-over");
+              // hand dropped files to the file input so the change-handler fires
+              var fi = document.getElementById("fileInput");
+              if (fi && e.dataTransfer && e.dataTransfer.files.length) {
+                fi.files = e.dataTransfer.files;
+                $(fi).trigger("change");
+              }
+            });
           }
       
           // select file -> validate -> preview
