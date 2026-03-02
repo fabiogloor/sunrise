@@ -90,6 +90,41 @@
             color: white !important;
         }
         
+        /****** Manuelle OTO-ID Toggle ******/
+        .manual-oto-toggle {
+            text-decoration: none;
+            color: var(--sunriseRed);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .manual-oto-toggle:hover {
+            text-decoration: underline;
+        }
+        .manual-oto-chevron {
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+        .manual-oto-toggle.is-open .manual-oto-chevron {
+            transform: rotate(180deg);
+        }
+        .manual-oto-panel {
+            display: none;
+            padding: 1rem 0 0;
+            text-align: left;
+        }
+        .manual-oto-panel.is-open {
+            display: block;
+            animation: oc-fadeIn 0.3s ease;
+        }
+        @keyframes oc-fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
         /****** Photo Upload Section ******/
         .dropzone-section{
             background: #FCF2F5;
@@ -417,15 +452,37 @@
                                 
                                 <div class="s-section"></div>
 
-                                <h6>Klicken Sie <strong style="color: var(--sunriseRed);">hier</strong>, um Ihre OTO‑ID manuell einzugeben.</h6>
-                                
-                                <!-- btn section -->
+                                <!-- btn section: Foto absenden -->
                                 <div class="button-section xs-section">
                                     <button type="button" class="btn-sr-primary dynamic-submit submitValidationForm" data-action="photocheck" data-cicid="%%=v(@cicId)=%%">
                                         <p>Senden</p>
                                     </button>
                                 </div>
                                 <!-- btn section -->
+
+                                <div class="s-section"></div>
+
+                                <!-- Manuelle OTO-ID Eingabe (Toggle) -->
+                                <div class="manual-oto-section" style="text-align: center;">
+                                    <a href="#" id="toggleManualOto" class="manual-oto-toggle">
+                                        OTO&#8209;ID manuell eingeben <span class="manual-oto-chevron">&#9662;</span>
+                                    </a>
+
+                                    <div id="manualOtoPanel" class="manual-oto-panel">
+                                        <div class="xxs-section"></div>
+                                        <div class="form-floating s20-form-input s20-form-input--otoId s20-form-input--md">
+                                            <input class="form-control" id="input_otoId" name="input_otoId"
+                                                   placeholder="A.XXX.XXX.XXX oder B.XXX.XXX.XXX.X"
+                                                   type="text" value="">
+                                            <label for="input_otoId">OTO-ID</label>
+                                        </div>
+                                        <div class="xxs-section"></div>
+                                        <button type="button" class="btn-sr-primary" id="btnSubmitManualOto"
+                                                data-cicid="%%=v(@cicId)=%%">
+                                            <p>OTO-ID absenden</p>
+                                        </button>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -682,29 +739,20 @@
           img.removeAttribute("src");
         }
       
-        // ---------- Form validation ----------
+        // ---------- Form validation (Foto-Pfad: «Senden»-Button) ----------
         function validateForm() {
           const errors = [];
-          const otoInput = document.getElementById("input_otoId");
-          const otoValue = (otoInput?.value || "").trim();
-      
+
           const file = getSelectedFile();
-          const hasImage = !!file;
-      
-          if (otoValue === "" && !hasImage) errors.push("Bitte laden Sie ein Bild hoch oder geben Sie eine OTO-ID ein");
-          if (otoValue !== "" && !validateOto(otoValue)) errors.push("Bitte geben Sie eine gültige OTO-ID ein");
-      
-          if (hasImage) {
+          if (!file) {
+            errors.push("Bitte laden Sie ein Foto hoch.");
+          } else {
             const v = validateImageFile(file);
             if (!v.ok) errors.push(v.msg);
           }
-      
+
           if (errors.length) {
             errors.forEach(showErrorToast);
-            if (otoInput && otoValue !== "" && !validateOto(otoValue)) {
-              otoInput.focus();
-              otoInput.select();
-            }
             return false;
           }
           return true;
@@ -786,7 +834,60 @@
             document.getElementById("fileInput")?.click();
           });
       
-          // ---------- Manual form submit (replaces dynamic-submit for this step) ----------
+          // ---------- Manuelle OTO-ID Toggle ----------
+        $("#toggleManualOto").on("click", function(e) {
+            e.preventDefault();
+            var panel = document.getElementById("manualOtoPanel");
+            var toggle = this;
+            if (panel.classList.contains("is-open")) {
+                panel.classList.remove("is-open");
+                toggle.classList.remove("is-open");
+            } else {
+                panel.classList.add("is-open");
+                toggle.classList.add("is-open");
+                document.getElementById("input_otoId")?.focus();
+            }
+        });
+
+        // ---------- Manuelle OTO-ID Direkt-Submit (→ action=accept, überspringt photocheck) ----------
+        $("#btnSubmitManualOto").on("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var otoInput = document.getElementById("input_otoId");
+            var otoValue = (otoInput?.value || "").trim();
+
+            if (!validateOto(otoValue)) {
+                showErrorToast("Bitte geben Sie eine gültige OTO-ID ein");
+                if (otoInput) { otoInput.focus(); otoInput.select(); }
+                return;
+            }
+
+            // Direkt als action=accept absenden → Branch B (überspringt photocheck)
+            var form = document.createElement("form");
+            form.method = "POST";
+
+            function addHidden(name, value) {
+                var inp = document.createElement("input");
+                inp.type  = "hidden";
+                inp.name  = name;
+                inp.value = value || "";
+                form.appendChild(inp);
+            }
+
+            addHidden("action",   "accept");
+            addHidden("cicId",    this.getAttribute("data-cicid") || "");
+            addHidden("otoid",    otoValue);
+            addHidden("siteId",   "%%=v(@siteId)=%%");
+            addHidden("sig",      "%%=v(@sig)=%%");
+            addHidden("exp",      "%%=v(@exp)=%%");
+            addHidden("products", "%%=v(@products)=%%");
+
+            document.body.appendChild(form);
+            form.submit();
+        });
+
+        // ---------- Manual form submit (replaces dynamic-submit for this step) ----------
         function submitToPhotocheck(btn, extraFields) {
           const form = document.createElement("form");
           form.method = "POST";
@@ -843,7 +944,7 @@
           reader.readAsDataURL(file);
         }
 
-        // ---------- Submit ----------
+        // ---------- Submit: Foto-Pfad (→ action=photocheck) ----------
         $(".submitValidationForm").on("click", function (event) {
           // Immer stopPropagation: wir übernehmen den Submit selbst,
           // damit der dynamic-submit Handler aus oneclick.min.js nicht zusätzlich feuert.
@@ -852,28 +953,19 @@
 
           if (!validateForm()) return;
 
-          const btn = this;
-          const otoValue = (document.getElementById("input_otoId")?.value || "").trim();
+          const btn  = this;
           const file = getSelectedFile();
 
-          if (file) {
-            // Async-Pfad: Bild komprimieren, dann absenden
-            compressAndReadBase64(file, function(base64) {
-              // Lade-Overlay einblenden – SSJS benötigt ~3–8 s (Auth + Upload + Qolaba AI)
-              var overlay = document.getElementById("ocLoadingOverlay");
-              if (overlay) overlay.classList.add("is-visible");
-              submitToPhotocheck(btn, {
-                otoid:     otoValue || "",
-                imagedata: base64,
-                imagetype: "jpeg"
-              });
-            });
-          } else {
-            // Synchron-Pfad: nur manuelle OTO-ID
+          // Foto komprimieren, dann via photocheck absenden
+          compressAndReadBase64(file, function(base64) {
+            // Lade-Overlay einblenden – SSJS benötigt ~3–8 s (Auth + Upload + Qolaba AI)
+            var overlay = document.getElementById("ocLoadingOverlay");
+            if (overlay) overlay.classList.add("is-visible");
             submitToPhotocheck(btn, {
-              otoid: otoValue
+              imagedata: base64,
+              imagetype: "jpeg"
             });
-          }
+          });
         });
         });
       

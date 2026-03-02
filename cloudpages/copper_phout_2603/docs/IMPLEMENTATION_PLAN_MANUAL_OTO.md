@@ -214,12 +214,13 @@ addField("products", "%%=v(@products)=%%");
 Client-seitig validieren wir das OTO-ID Format. Aber die OneClick-API könnte die OTO-ID trotzdem ablehnen (z.B. existiert nicht im System). Das ist ok – die API gibt einen Fehlercode zurück, der dann die Error-Page zeigt.
 
 ### Risiko 3: UX-Entscheidung – Foto ODER manuell?
-Soll der User Foto **und** manuelle Eingabe gleichzeitig verwenden können? Oder sich für eines entscheiden?
+~~Soll der User Foto **und** manuelle Eingabe gleichzeitig verwenden können?~~
 
-**Empfehlung:** Mutual exclusive mit klarer Priorisierung:
-- Wenn ein Foto hochgeladen ist → «Senden» Button geht via `action=photocheck` (wie bisher)
-- Wenn kein Foto, aber manuelle Eingabe → «OTO-ID absenden» geht direkt via `action=accept`
-- Wenn beides → Foto hat Vorrang (KI-Erkennung), manuelle Eingabe wird ignoriert
+**Entschieden (02.03.2026):** Jeder Button triggert seinen eigenen Pfad:
+- **«Senden»-Button** (beim Foto) → `action=photocheck` → KI-Auswertung (wie bisher)
+- **«OTO-ID absenden»-Button** (bei manueller Eingabe) → `action=accept` → direkt Branch B
+
+Kein Konflikt, weil es zwei separate Buttons sind. Der User entscheidet selbst welchen Weg er geht.
 
 ### Offene Frage: Live-Test nötig
 Die Parameter-Propagation (`sig`, `exp`, `products`) muss in der kompletten Journey live getestet werden. Das hatten wir bereits als «später testen» markiert (Punkt 10/11 aus dem Code Review).
