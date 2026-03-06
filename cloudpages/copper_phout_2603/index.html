@@ -364,7 +364,7 @@
       }
 
       var otoId = Variable.GetValue("@otoId");
-      if (otoId) reqconfig.oto_id = otoId;
+      if (otoId) reqconfig.data = { otoid: otoId };
 
       var authobj = {
         client_id:     ocEnv.client_id,

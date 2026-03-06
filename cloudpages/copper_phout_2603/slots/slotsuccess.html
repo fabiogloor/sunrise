@@ -477,7 +477,8 @@
                                             <label for="input_otoId">OTO-ID</label>
                                         </div>
                                         <div class="xxs-section"></div>
-                                        <button type="button" class="btn-sr-primary" id="btnSubmitManualOto"
+                                        <button type="button" class="btn-sr-primary dynamic-submit" id="btnSubmitManualOto"
+                                                data-action="accept"
                                                 data-cicid="%%=v(@cicId)=%%">
                                             <p>OTO-ID absenden</p>
                                         </button>
@@ -858,42 +859,25 @@
             }
         });
 
-        // ---------- Manuelle OTO-ID Direkt-Submit (→ action=accept, überspringt photocheck) ----------
+        // ---------- Manuelle OTO-ID Direkt-Submit (→ action=accept via dynamic-submit) ----------
+        // Validiert die OTO-ID und setzt data-extra-otoid auf den Button.
+        // oneclick.min.js (dynamic-submit) übernimmt dann den POST mit action=accept + otoid.
         $("#btnSubmitManualOto").on("click", function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
             var otoInput = document.getElementById("input_otoId");
             var otoValue = (otoInput?.value || "").trim();
 
             if (!validateOto(otoValue)) {
+                e.preventDefault();
+                e.stopPropagation();          // verhindert Bubbling zum document-Listener (oneclick.min.js)
+                e.stopImmediatePropagation(); // verhindert weitere jQuery-Handler auf diesem Element
                 showErrorToast("Bitte geben Sie eine gültige OTO-ID ein");
                 if (otoInput) { otoInput.focus(); otoInput.select(); }
                 return;
             }
 
-            // Direkt als action=accept absenden → Branch B (überspringt photocheck)
-            var form = document.createElement("form");
-            form.method = "POST";
-
-            function addHidden(name, value) {
-                var inp = document.createElement("input");
-                inp.type  = "hidden";
-                inp.name  = name;
-                inp.value = value || "";
-                form.appendChild(inp);
-            }
-
-            addHidden("action",   "accept");
-            addHidden("cicId",    this.getAttribute("data-cicid") || "");
-            addHidden("otoid",    otoValue);
-            addHidden("siteId",   "%%=v(@siteId)=%%");
-            addHidden("sig",      "%%=v(@sig)=%%");
-            addHidden("exp",      "%%=v(@exp)=%%");
-            addHidden("products", "%%=v(@products)=%%");
-
-            document.body.appendChild(form);
-            form.submit();
+            // OTO-ID als data-extra-Attribut setzen → oneclick.min.js macht daraus ein hidden field "otoid"
+            $(this).attr("data-extra-otoid", otoValue);
+            // dynamic-submit (oneclick.min.js) übernimmt ab hier den POST
         });
 
         // ---------- Manual form submit (replaces dynamic-submit for this step) ----------
